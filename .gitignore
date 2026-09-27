@@ -1,0 +1,39 @@
+# Dependencies
+node_modules/
+.venv/
+venv/
+ENV/
+
+# Next.js build outputs
+.next/
+out/
+build/
+dist/
+
+# Python cache & bytecode
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.pytest_cache/
+
+# Databases & local media
+*.db
+*.sqlite
+*.sqlite3
+eduflow.db
+rewoix.db
+media/
+backend/media/
+
+# Environment & secrets
+.env
+.env.local
+.env.development.local
+.env.production.local
+
+# IDE & System
+.DS_Store
+*.pem
+.idea/
+.vscode/
