@@ -7,7 +7,7 @@ export interface User {
   avatar_url?: string;
   bio?: string;
   is_active: boolean;
-  is_verified: bool;
+  is_verified: boolean;
   roles: Role[];
   created_at: string;
 }
@@ -104,4 +104,22 @@ export interface AdminMetrics {
   total_teacher_earnings: number;
   pending_course_approvals: number;
   pending_payouts_count: number;
+}
+
+export interface SimulationTrack {
+  id: string;
+  title: string;
+  domain: "Fintech" | "E-Commerce" | "Healthcare" | "SaaS";
+  brief: string;
+  tools: string[];
+  difficulty: "Foundational" | "Advanced" | "Executive";
+  isLocked: boolean;
+}
+
+export interface WaitlistPayload {
+  name: string;
+  email: string;
+  roleStage: "student" | "graduate" | "career_switcher" | "working_pro";
+  targetDomain?: string;
+  timestamp: string;
 }

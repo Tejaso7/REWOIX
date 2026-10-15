@@ -8,6 +8,15 @@ module.exports = {
   theme: {
     extend: {
       colors: {
+        rewoix: {
+          bg: '#0B0F17',
+          surface: '#111827',
+          card: '#1E293B',
+          cyan: '#00D2FF',
+          blue: '#3B82F6',
+          emerald: '#10B981',
+          border: 'rgba(255, 255, 255, 0.08)',
+        },
         brand: {
           50: '#f0f7ff',
           100: '#e0effe',
@@ -17,12 +26,14 @@ module.exports = {
           900: '#1e3a8a',
         },
         accent: {
-          500: '#8b5cf6',
-          600: '#7c3aed',
+          400: '#38bdf8',
+          500: '#00D2FF',
+          600: '#2563eb',
         },
         dark: {
-          800: '#0f172a',
-          900: '#090d16',
+          800: '#1E293B',
+          850: '#111827',
+          900: '#0B0F17',
         }
       },
     },

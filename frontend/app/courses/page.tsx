@@ -1,13 +1,13 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
-import { Search, BookOpen } from 'lucide-react';
+import { Search, BookOpen, Loader2 } from 'lucide-react';
 import CourseCard from '@/components/CourseCard';
 import { Course, Category } from '@/types';
 import { fetchApi } from '@/lib/api';
 
-export default function CoursesPage() {
+function CoursesContent() {
   const searchParams = useSearchParams();
   const initialQ = searchParams.get('q') || '';
   const initialCategory = searchParams.get('category_id') || '';
@@ -117,5 +117,20 @@ export default function CoursesPage() {
         </div>
       )}
     </div>
+  );
+}
+
+export default function CoursesPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="max-w-7xl mx-auto px-4 py-20 flex justify-center items-center text-slate-400">
+          <Loader2 className="w-8 h-8 animate-spin mr-3 text-cyan-400" />
+          <span>Loading simulation courses...</span>
+        </div>
+      }
+    >
+      <CoursesContent />
+    </Suspense>
   );
 }
