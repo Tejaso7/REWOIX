@@ -48,9 +48,21 @@ function CoursesContent() {
   return (
     <div className="max-w-7xl mx-auto px-6 py-10 space-y-8">
       {/* Header */}
-      <div>
-        <h1 className="text-3xl font-extrabold text-slate-900 dark:text-white mb-2">Explore All Courses</h1>
-        <p className="text-xs text-slate-500 dark:text-slate-400">Discover and purchase courses created by top teachers</p>
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
+        <div>
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-[11px] font-bold bg-blue-500/10 border border-blue-500/20 text-cyan-400 uppercase tracking-wider mb-2">
+            Workplace Simulations & Tracks
+          </div>
+          <h1 className="text-3xl md:text-4xl font-black text-slate-900 dark:text-white tracking-tight">
+            Enterprise Experience Catalog
+          </h1>
+          <p className="text-xs md:text-sm text-slate-600 dark:text-slate-400 mt-1.5 max-w-2xl leading-relaxed">
+            Real business challenges, messy production schemas, and stakeholder pushback scenarios designed by verified industry leads.
+          </p>
+        </div>
+        <div className="text-xs font-semibold text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-slate-800/80 px-3.5 py-1.5 rounded-full border border-slate-200 dark:border-white/10 shrink-0">
+          {loading ? 'Scanning tracks...' : `${courses.length} Tracks Ready`}
+        </div>
       </div>
 
       {/* Filter Bar */}

@@ -67,7 +67,7 @@ async def search_courses(
     q: Optional[str] = None,
     category_id: Optional[UUID] = None,
     level: Optional[CourseLevelEnum] = None,
-    sort_by: Optional[str] = Query("popular", regex="^(popular|rating|newest|price_asc|price_desc)$"),
+    sort_by: Optional[str] = Query("popular", pattern="^(popular|rating|newest|price_asc|price_desc)$"),
     skip: int = 0,
     limit: int = 20,
     db: AsyncSession = Depends(get_db),

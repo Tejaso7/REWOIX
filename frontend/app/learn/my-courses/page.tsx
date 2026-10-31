@@ -88,8 +88,8 @@ export default function MyCoursesPage() {
                 </Link>
                 {enr.is_completed && (
                   <Link
-                    href={`/certificates/verify/EDU-DEMO-CERT`}
-                    className="px-4 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-xs font-semibold text-purple-700 dark:text-purple-300 border border-purple-500/30 flex items-center gap-1.5 transition-colors"
+                    href={`/certificates/verify/RWX-CERT-DEMO`}
+                    className="px-4 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-xs font-semibold text-cyan-600 dark:text-cyan-400 border border-cyan-500/30 flex items-center gap-1.5 transition-colors"
                   >
                     <Award className="w-4 h-4" /> Certificate
                   </Link>

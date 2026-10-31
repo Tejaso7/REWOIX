@@ -1,6 +1,6 @@
-# EduFlow System Architecture
+# REWOIX System Architecture
 
-EduFlow is architected with domain-driven design principles separating concerns across API routing, business services, database persistence repositories, provider abstractions, and reactive frontend state.
+REWOIX (Real-World Industry Experience) is architected with enterprise-grade modular principles separating concerns across API routing, business simulation engines, database persistence repositories, payment provider gateways, and reactive Next.js frontend state.
 
 ```text
                                ┌─────────────────────────┐

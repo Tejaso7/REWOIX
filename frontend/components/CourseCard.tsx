@@ -67,19 +67,19 @@ export default function CourseCard({ course }: CourseCardProps) {
           <div className="flex items-center justify-between">
             <div>
               <div className="text-xl font-extrabold text-slate-900 dark:text-white">
-                ₹{displayPrice.toLocaleString()}
+                ₹{displayPrice.toLocaleString('en-IN')}
               </div>
               {originalPrice && (
-                <div className="text-xs text-slate-400 line-through">
-                  ₹{originalPrice.toLocaleString()}
+                <div className="text-[11px] text-slate-400 line-through">
+                  ₹{originalPrice.toLocaleString('en-IN')}
                 </div>
               )}
             </div>
             <Link
               href={`/courses/${course.id}`}
-              className="gradient-button px-4 py-2 text-xs font-bold text-white rounded-xl shadow-md"
+              className="gradient-button px-4 py-2 text-xs font-bold text-white rounded-xl shadow-md hover:shadow-cyan-500/20 transition-shadow"
             >
-              View Course
+              Explore Track
             </Link>
           </div>
         </div>
