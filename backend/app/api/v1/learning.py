@@ -238,7 +238,7 @@ async def update_lesson_progress(
         existing_cert = (await db.execute(stmt_cert)).scalar_one_or_none()
         if not existing_cert:
             import uuid
-            cert_no = f"EDU-{datetime.now().strftime('%Y%m%d')}-{uuid.uuid4().hex[:8].upper()}"
+            cert_no = f"RWX-{datetime.now().strftime('%Y%m%d')}-{uuid.uuid4().hex[:8].upper()}"
             hash_val = hashlib.sha256(f"{current_user.id}:{course_id}:{cert_no}".encode()).hexdigest()
             cert = Certificate(
                 certificate_number=cert_no,
