@@ -40,7 +40,7 @@ export default function RegisterPage() {
       saveAuthSession(loginData.access_token, loginData.refresh_token, loginData.user);
 
       if (role === 'TEACHER') {
-        router.push('/teacher/dashboard');
+        router.push('/teacher/onboarding');
       } else {
         router.push('/learn/my-courses');
       }

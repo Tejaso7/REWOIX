@@ -138,11 +138,11 @@ export default function Navbar() {
             <div className="flex items-center gap-2">
               <div className="hidden lg:flex items-center gap-2 bg-slate-100 dark:bg-slate-800/80 px-3 py-1.5 rounded-full border border-slate-200 dark:border-white/10">
                 <div className="w-6 h-6 rounded-full bg-blue-600 flex items-center justify-center text-[10px] font-bold text-white shadow-sm">
-                  {user.full_name.charAt(0)}
+                  {user.full_name ? user.full_name.charAt(0) : 'U'}
                 </div>
-                <span className="text-xs font-semibold text-slate-800 dark:text-slate-200 max-w-[100px] truncate">{user.full_name}</span>
+                <span className="text-xs font-semibold text-slate-800 dark:text-slate-200 max-w-[100px] truncate">{user.full_name || 'User'}</span>
                 <span className="text-[9px] uppercase tracking-wider bg-blue-100 dark:bg-slate-700 px-1.5 py-0.5 rounded text-blue-700 dark:text-cyan-300 font-bold">
-                  {user.roles[0]}
+                  {user.roles && user.roles.length > 0 ? user.roles[0] : 'USER'}
                 </span>
               </div>
               <button

@@ -100,9 +100,10 @@ export default function AdminUsersPage() {
             </thead>
             <tbody className="divide-y divide-slate-200 dark:divide-slate-800">
               {users.map((u) => {
-                const isTeacher = u.roles.includes('TEACHER');
-                const isAdmin = u.roles.includes('ADMIN');
-                const isLearner = u.roles.includes('LEARNER');
+                const roles = Array.isArray(u.roles) ? u.roles : [];
+                const isTeacher = roles.includes('TEACHER');
+                const isAdmin = roles.includes('ADMIN');
+                const isLearner = roles.includes('LEARNER');
 
                 return (
                   <tr key={u.id} className="hover:bg-slate-50 dark:hover:bg-slate-900/50 transition-colors">
@@ -117,7 +118,7 @@ export default function AdminUsersPage() {
                         isTeacher ? 'bg-purple-500/10 text-purple-600 dark:text-purple-400 border border-purple-500/20' :
                         'bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/20'
                       }`}>
-                        {u.roles[0]}
+                        {roles[0] || 'USER'}
                       </span>
                     </td>
 
@@ -170,7 +171,7 @@ export default function AdminUsersPage() {
             <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-4">
               <div>
                 <h3 className="text-lg font-bold text-slate-900 dark:text-white">{selectedUser.full_name}</h3>
-                <p className="text-xs text-slate-500 dark:text-slate-400">{selectedUser.email} • Role: {selectedUser.roles.join(', ')}</p>
+                <p className="text-xs text-slate-500 dark:text-slate-400">{selectedUser.email} • Role: {Array.isArray(selectedUser.roles) ? selectedUser.roles.join(', ') : 'USER'}</p>
               </div>
               <button
                 onClick={() => setSelectedUser(null)}
@@ -218,7 +219,7 @@ export default function AdminUsersPage() {
             )}
 
             {/* Custom Commission Adjuster Form */}
-            {selectedUser.roles.includes('TEACHER') && (
+            {selectedUser.roles?.includes('TEACHER') && (
               <div className="p-4 rounded-2xl bg-purple-500/10 border border-purple-500/20 space-y-3">
                 <h4 className="font-bold text-slate-900 dark:text-white text-xs flex items-center gap-1.5">
                   <DollarSign className="w-4 h-4 text-purple-600 dark:text-purple-400" /> Admin Custom Teacher Commission Cut (%)
