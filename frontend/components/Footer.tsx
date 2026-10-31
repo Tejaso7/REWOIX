@@ -79,7 +79,7 @@ export default function Footer() {
             <li><Link href="/login" className="hover:text-blue-600 dark:hover:text-cyan-400 transition-colors">Sign In / Dashboard</Link></li>
             <li><Link href="/register" className="hover:text-blue-600 dark:hover:text-cyan-400 transition-colors">Create Account</Link></li>
             <li><Link href="/#waitlist" className="hover:text-blue-600 dark:hover:text-cyan-400 transition-colors font-semibold text-blue-600 dark:text-cyan-400">Join Beta Waitlist</Link></li>
-            <li><Link href="/certificates/verify/EDU-DEMO-CERT" className="hover:text-blue-600 dark:hover:text-cyan-400 transition-colors">Verify Certificate</Link></li>
+            <li><Link href="/certificates/verify/RWX-CERT-DEMO" className="hover:text-blue-600 dark:hover:text-cyan-400 transition-colors">Verify Certificate</Link></li>
           </ul>
         </div>
       </div>
