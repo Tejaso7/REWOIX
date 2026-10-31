@@ -95,6 +95,7 @@ async def seed_data():
                 slug="mastering-nextjs-fastapi-systems",
                 subtitle="Build production-grade full-stack LMS and web software with modular domain architecture.",
                 description="Learn full-stack software design with FastAPI 0.110+, Next.js 15, PostgreSQL, Redis, Docker, and Razorpay integrations.",
+                thumbnail_url="https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=800&q=80",
                 price=Decimal("4999.00"),
                 discount_price=Decimal("2999.00"),
                 currency="INR",
