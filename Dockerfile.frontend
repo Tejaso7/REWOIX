@@ -1,22 +1,53 @@
+# Multi-Stage Production Dockerfile for REWOIX Next.js Frontend
+# Stage 1: Base Alpine Environment
 FROM node:18-alpine AS base
-
 WORKDIR /app
+RUN apk add --no-cache libc6-compat curl
 
-# Install dependencies based on lockfile
+# Stage 2: Install Dependencies
+FROM base AS deps
+WORKDIR /app
 COPY frontend/package.json frontend/package-lock.json* ./
 RUN npm ci
 
-# Copy application source
+# Stage 3: Build Production Application
+FROM base AS builder
+WORKDIR /app
+COPY --from=deps /app/node_modules ./node_modules
 COPY frontend/ .
 
-# Build production application
-ENV NEXT_TELEMETRY_DISABLED 1
-ENV NODE_ENV production
+# Inject Build-time Public Environment Variables
+ARG NEXT_PUBLIC_API_URL=http://localhost:8000/api/v1
+ENV NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL
+ENV NEXT_TELEMETRY_DISABLED=1
+ENV NODE_ENV=production
+
 RUN npm run build
+
+# Stage 4: Production Runtime Image
+FROM base AS runner
+WORKDIR /app
+
+ENV NODE_ENV=production
+ENV NEXT_TELEMETRY_DISABLED=1
+ENV PORT=3000
+ENV HOSTNAME="0.0.0.0"
+
+# Non-root user for security compliance
+RUN addgroup --system --gid 1001 nodejs && \
+    adduser --system --uid 1001 nextjs
+
+COPY --from=builder /app/package.json ./package.json
+COPY --from=builder /app/public ./public
+COPY --from=builder /app/.next ./.next
+COPY --from=builder /app/node_modules ./node_modules
+
+USER nextjs
 
 EXPOSE 3000
 
-ENV PORT 3000
-ENV HOSTNAME "0.0.0.0"
+# Container healthcheck
+HEALTHCHECK --interval=20s --timeout=5s --start-period=20s --retries=3 \
+  CMD curl -f http://localhost:3000 || exit 1
 
 CMD ["npm", "run", "start"]

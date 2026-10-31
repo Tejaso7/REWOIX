@@ -1,0 +1,89 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: rewoix_dev_postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgrespassword
+      POSTGRES_DB: rewoix_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - dev_postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d rewoix_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - rewoix_dev_network
+
+  redis:
+    image: redis:7-alpine
+    container_name: rewoix_dev_redis
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - rewoix_dev_network
+
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile.backend
+    container_name: rewoix_dev_backend
+    environment:
+      - APP_ENV=development
+      - DEBUG=True
+      - SECRET_KEY=dev_secret_key_change_in_production_super_secret_123456789
+      - DATABASE_URL=postgresql+asyncpg://postgres:postgrespassword@postgres:5432/rewoix_db
+      - SYNC_DATABASE_URL=postgresql://postgres:postgrespassword@postgres:5432/rewoix_db
+      - REDIS_URL=redis://redis:6379/0
+      - STORAGE_PROVIDER=local
+      - LOCAL_STORAGE_DIR=/app/media
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./backend:/app
+      - dev_media_data:/app/media
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    command: ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
+    networks:
+      - rewoix_dev_network
+
+  frontend:
+    image: node:18-alpine
+    container_name: rewoix_dev_frontend
+    working_dir: /app
+    environment:
+      - NODE_ENV=development
+      - NEXT_PUBLIC_API_URL=http://localhost:8000/api/v1
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+      - /app/.next
+    depends_on:
+      - backend
+    command: sh -c "npm install && npm run dev"
+    networks:
+      - rewoix_dev_network
+
+volumes:
+  dev_postgres_data:
+  dev_media_data:
+
+networks:
+  rewoix_dev_network:
+    driver: bridge
