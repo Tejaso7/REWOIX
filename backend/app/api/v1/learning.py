@@ -2,13 +2,14 @@ from typing import List, Optional
 from uuid import UUID
 from datetime import datetime, timezone
 import hashlib
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, Request
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, func
 from sqlalchemy.orm import selectinload
 
 from app.core.database import get_db
 from app.core.deps import get_current_active_user
+from app.core.telemetry import record_audit_event
 from app.models.user import User
 from app.models.course import Course, CourseSection, Lesson
 from app.models.learning import Enrollment, LessonProgress
@@ -159,6 +160,7 @@ async def get_course_learning_player(
 async def update_lesson_progress(
     lesson_id: UUID,
     progress_in: LessonProgressUpdate,
+    request: Request,
     current_user: User = Depends(get_current_active_user),
     db: AsyncSession = Depends(get_db),
 ):
@@ -254,6 +256,17 @@ async def update_lesson_progress(
                 certificate_hash=hash_val,
             )
             db.add(cert)
+
+            # Record certificate issuance audit event
+            await record_audit_event(
+                db=db,
+                action="CERTIFICATE_ISSUED",
+                entity_type="Certificate",
+                entity_id=cert_no,
+                actor_user_id=current_user.id,
+                details=f"Earned verified graduation certificate {cert_no}",
+                request=request,
+            )
 
     await db.commit()
     await db.refresh(progress)

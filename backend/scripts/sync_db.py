@@ -2,7 +2,7 @@ import sqlite3
 import os
 
 def sync_schema():
-    for db_path in ["./rewoix.db"]:
+    for db_path in ["./rewoix.db", "./backend/rewoix.db", "rewoix.db", "backend/rewoix.db"]:
         if not os.path.exists(db_path):
             continue
         conn = sqlite3.connect(db_path)
@@ -57,11 +57,20 @@ def sync_schema():
             except sqlite3.OperationalError:
                 pass
 
-        # Users Column
         try:
             cursor.execute("ALTER TABLE users ADD COLUMN phone_number TEXT;")
         except sqlite3.OperationalError:
             pass
+
+        audit_cols = [
+            ("location", "TEXT"),
+            ("user_agent", "TEXT"),
+        ]
+        for col_name, col_type in audit_cols:
+            try:
+                cursor.execute(f"ALTER TABLE audit_logs ADD COLUMN {col_name} {col_type};")
+            except sqlite3.OperationalError:
+                pass
 
         conn.commit()
         conn.close()

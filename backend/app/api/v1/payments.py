@@ -1,6 +1,7 @@
 import uuid
 import hmac
 import hashlib
+from typing import Optional
 from decimal import Decimal
 from datetime import datetime, timezone
 from fastapi import APIRouter, Depends, HTTPException, status, Request
@@ -12,6 +13,7 @@ from app.core.database import get_db
 from app.core.deps import get_current_active_user
 from app.core.payment import get_payment_provider
 from app.core.config import settings
+from app.core.telemetry import record_audit_event
 from app.models.user import User, TeacherProfile
 from app.models.course import Course, CourseStatusEnum
 from app.models.payment import Order, Payment, OrderStatusEnum
@@ -95,7 +97,11 @@ async def create_checkout_order(
 
 
 async def _fulfill_successful_order(
-    order: Order, gateway_payment_id: str, gateway_signature: str, db: AsyncSession
+    order: Order,
+    gateway_payment_id: str,
+    gateway_signature: str,
+    db: AsyncSession,
+    request: Optional[Request] = None,
 ) -> Enrollment:
     order.status = OrderStatusEnum.SUCCESS
     payment_record = Payment(
@@ -121,6 +127,17 @@ async def _fulfill_successful_order(
         course = order.course
         if course:
             course.total_learners += 1
+
+        # Record security and enrollment telemetry
+        await record_audit_event(
+            db=db,
+            action="COURSE_ENROLLED",
+            entity_type="Course",
+            entity_id=str(order.course_id),
+            actor_user_id=order.learner_id,
+            details=f"Enrolled in {course.title if course else 'Course'} (Order: {order.gateway_order_id or str(order.id)[:8]})",
+            request=request,
+        )
 
         # 2. Calculate Dynamic Revenue Split & Create Financial Ledger Entry
         teacher_share_percent = settings.DEFAULT_TEACHER_SHARE_PERCENT
@@ -165,6 +182,7 @@ async def _fulfill_successful_order(
 @router.post("/verify", response_model=PaymentVerifyResponse)
 async def verify_payment_and_enroll(
     verify_in: PaymentVerifyRequest,
+    request: Request,
     current_user: User = Depends(get_current_active_user),
     db: AsyncSession = Depends(get_db),
 ):
@@ -216,6 +234,7 @@ async def verify_payment_and_enroll(
         gateway_payment_id=verify_in.gateway_payment_id,
         gateway_signature=verify_in.gateway_signature,
         db=db,
+        request=request,
     )
 
     return PaymentVerifyResponse(
@@ -262,6 +281,7 @@ async def razorpay_webhook_listener(request: Request, db: AsyncSession = Depends
                     gateway_payment_id=payment_id or "pay_webhook_captured",
                     gateway_signature=signature or "sig_webhook",
                     db=db,
+                    request=request,
                 )
 
     return {"status": "ok"}

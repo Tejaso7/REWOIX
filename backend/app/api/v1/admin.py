@@ -3,13 +3,14 @@ from uuid import UUID
 from decimal import Decimal
 from datetime import datetime, timezone
 from pydantic import BaseModel, Field
-from fastapi import APIRouter, Depends, HTTPException, status, Query
+from fastapi import APIRouter, Depends, HTTPException, status, Query, Request
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, func
 from sqlalchemy.orm import selectinload
 
 from app.core.database import get_db
 from app.core.deps import require_roles, get_current_active_user
+from app.core.telemetry import record_audit_event
 from app.models.user import User, UserRole, UserRoleEnum, TeacherProfile, LearnerProfile
 from app.models.course import Course, CourseStatusEnum
 from app.models.revenue import RevenueTransaction, Payout
@@ -19,6 +20,7 @@ from app.schemas.admin import (
     AdminDashboardMetrics,
     CourseApprovalRequest,
 )
+from app.schemas.audit import AuditLogResponse
 from app.schemas.course import CourseResponse
 from app.schemas.revenue import RevenueTransactionResponse, PayoutResponse
 from app.schemas.auth import UserResponse
@@ -140,6 +142,7 @@ async def get_pending_courses(
 async def approve_course(
     course_id: UUID,
     approval_in: CourseApprovalRequest,
+    request: Request,
     current_user: User = Depends(require_roles([UserRoleEnum.ADMIN])),
     db: AsyncSession = Depends(get_db),
 ):
@@ -156,14 +159,14 @@ async def approve_course(
         course.rejection_reason = approval_in.rejection_reason or "Does not meet quality guidelines"
         action_name = "ADMIN_REJECTED_COURSE"
 
-    db.add(
-        AuditLog(
-            actor_user_id=current_user.id,
-            action=action_name,
-            entity_type="Course",
-            entity_id=str(course.id),
-            details=f"Course '{course.title}' status updated to {course.status.value}",
-        )
+    await record_audit_event(
+        db=db,
+        action=action_name,
+        entity_type="Course",
+        entity_id=str(course.id),
+        actor_user_id=current_user.id,
+        details=f"Course '{course.title}' status updated to {course.status.value}",
+        request=request,
     )
 
     await db.commit()
@@ -361,6 +364,7 @@ async def list_payouts(
 async def approve_payout(
     payout_id: UUID,
     reference_number: str = "REF-SETTLED-001",
+    request: Request = None,
     current_user: User = Depends(require_roles([UserRoleEnum.ADMIN])),
     db: AsyncSession = Depends(get_db),
 ):
@@ -378,14 +382,14 @@ async def approve_payout(
     payout.reference_number = reference_number
     payout.processed_at = datetime.now(timezone.utc)
 
-    db.add(
-        AuditLog(
-            actor_user_id=current_user.id,
-            action="PAYOUT_APPROVED",
-            entity_type="Payout",
-            entity_id=str(payout.id),
-            details=f"Approved payout of {payout.amount} {payout.currency}",
-        )
+    await record_audit_event(
+        db=db,
+        action="PAYOUT_APPROVED",
+        entity_type="Payout",
+        entity_id=str(payout.id),
+        actor_user_id=current_user.id,
+        details=f"Approved payout of {payout.amount} {payout.currency}",
+        request=request,
     )
 
     await db.commit()
@@ -408,6 +412,7 @@ async def approve_payout(
 async def reject_payout(
     payout_id: UUID,
     reason: Optional[str] = None,
+    request: Request = None,
     current_user: User = Depends(require_roles([UserRoleEnum.ADMIN])),
     db: AsyncSession = Depends(get_db),
 ):
@@ -425,14 +430,14 @@ async def reject_payout(
     payout.notes = f"{payout.notes or ''} [Admin Rejection: {reason or 'Declined by Administrator'}]".strip()
     payout.processed_at = datetime.now(timezone.utc)
 
-    db.add(
-        AuditLog(
-            actor_user_id=current_user.id,
-            action="PAYOUT_REJECTED",
-            entity_type="Payout",
-            entity_id=str(payout.id),
-            details=f"Rejected payout of {payout.amount} {payout.currency}. Reason: {reason or 'None'}",
-        )
+    await record_audit_event(
+        db=db,
+        action="PAYOUT_REJECTED",
+        entity_type="Payout",
+        entity_id=str(payout.id),
+        actor_user_id=current_user.id,
+        details=f"Rejected payout of {payout.amount} {payout.currency}. Reason: {reason or 'None'}",
+        request=request,
     )
 
     await db.commit()
@@ -449,3 +454,41 @@ async def reject_payout(
         requested_at=payout.requested_at,
         processed_at=payout.processed_at,
     )
+
+
+@router.get("/audit-logs", response_model=List[AuditLogResponse])
+async def get_admin_audit_logs(
+    skip: int = Query(0, ge=0),
+    limit: int = Query(50, ge=1, le=100),
+    action: Optional[str] = Query(None),
+    current_user: User = Depends(require_roles([UserRoleEnum.ADMIN])),
+    db: AsyncSession = Depends(get_db),
+):
+    stmt = (
+        select(AuditLog)
+        .options(selectinload(AuditLog.actor))
+        .order_by(AuditLog.created_at.desc())
+    )
+    if action:
+        stmt = stmt.where(AuditLog.action == action)
+    stmt = stmt.offset(skip).limit(limit)
+    result = await db.execute(stmt)
+    logs = result.scalars().all()
+
+    return [
+        AuditLogResponse(
+            id=log.id,
+            actor_user_id=log.actor_user_id,
+            actor_name=log.actor.full_name if log.actor else "System / Guest",
+            actor_email=log.actor.email if log.actor else None,
+            action=log.action,
+            entity_type=log.entity_type,
+            entity_id=log.entity_id,
+            details=log.details,
+            ip_address=log.ip_address or "127.0.0.1",
+            location=log.location or "Local Network",
+            user_agent=log.user_agent or "Web Client",
+            created_at=log.created_at,
+        )
+        for log in logs
+    ]

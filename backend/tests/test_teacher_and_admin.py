@@ -47,3 +47,39 @@ async def test_admin_update_teacher_commission(client: AsyncClient, test_admin_h
     assert response.status_code == 200
     data = response.json()
     assert data["custom_commission_percent"] == 82.5
+
+
+@pytest.mark.asyncio
+async def test_admin_audit_logs_telemetry(client: AsyncClient, test_admin_headers):
+    admin_headers, admin = test_admin_headers
+
+    # 1. Trigger an audited event by registering a learner with client IP, UA, and geo headers
+    reg_resp = await client.post(
+        "/auth/register",
+        json={
+            "email": "telemetry_user@rewoix.com",
+            "password": "Password123!",
+            "full_name": "Telemetry Learner",
+            "role": "LEARNER",
+        },
+        headers={
+            "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/122.0.0.0",
+            "cf-ipcity": "Bengaluru",
+            "cf-ipcountry": "India",
+            "x-forwarded-for": "103.21.244.2",
+        },
+    )
+    assert reg_resp.status_code == 201
+
+    # 2. Query admin audit logs endpoint
+    response = await client.get("/admin/audit-logs", headers=admin_headers)
+    assert response.status_code == 200
+    logs = response.json()
+    assert isinstance(logs, list)
+    assert len(logs) > 0
+    first_log = logs[0]
+    assert first_log["action"] == "USER_REGISTERED"
+    assert first_log["location"] == "Bengaluru, India"
+    assert first_log["ip_address"] == "103.21.244.2"
+    assert "Chrome on Windows" in first_log["user_agent"]
+    assert first_log["actor_name"] == "Telemetry Learner"

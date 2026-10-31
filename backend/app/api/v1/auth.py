@@ -1,9 +1,10 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, Request
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from sqlalchemy.orm import selectinload
 from app.core.database import get_db
 from app.core.config import settings
+from app.core.telemetry import record_audit_event
 from app.core.security import (
     verify_password,
     get_password_hash,
@@ -69,7 +70,7 @@ async def build_user_response(user: User, db: AsyncSession) -> UserResponse:
 
 
 @router.post("/register", response_model=UserResponse, status_code=status.HTTP_201_CREATED)
-async def register(user_in: UserRegister, db: AsyncSession = Depends(get_db)):
+async def register(user_in: UserRegister, request: Request, db: AsyncSession = Depends(get_db)):
     # Check existing user
     stmt = select(User).where(User.email == user_in.email)
     existing = await db.execute(stmt)
@@ -107,6 +108,16 @@ async def register(user_in: UserRegister, db: AsyncSession = Depends(get_db)):
     else:
         db.add(LearnerProfile(user_id=user.id))
 
+    await record_audit_event(
+        db=db,
+        action="USER_REGISTERED",
+        entity_type="User",
+        entity_id=str(user.id),
+        actor_user_id=user.id,
+        details=f"Registered account as {role_enum.value}",
+        request=request,
+    )
+
     await db.commit()
     await db.refresh(user)
 
@@ -114,7 +125,7 @@ async def register(user_in: UserRegister, db: AsyncSession = Depends(get_db)):
 
 
 @router.post("/login", response_model=Token)
-async def login(credentials: UserLogin, db: AsyncSession = Depends(get_db)):
+async def login(credentials: UserLogin, request: Request, db: AsyncSession = Depends(get_db)):
     stmt = select(User).where(User.email == credentials.email)
     result = await db.execute(stmt)
     user = result.unique().scalar_one_or_none()
@@ -144,6 +155,18 @@ async def login(credentials: UserLogin, db: AsyncSession = Depends(get_db)):
         is_read=False,
     )
     db.add(login_notification)
+
+    # Record security audit telemetry
+    await record_audit_event(
+        db=db,
+        action="USER_LOGIN",
+        entity_type="User",
+        entity_id=str(user.id),
+        actor_user_id=user.id,
+        details=f"Authenticated session ({', '.join(roles)})",
+        request=request,
+    )
+
     await db.commit()
 
     # Dispatch security alert email (non-blocking)
@@ -195,7 +218,7 @@ async def verify_user_otp(payload: VerifyOtpRequest):
 
 
 @router.post("/login-otp", response_model=Token)
-async def login_with_otp(payload: OtpLoginRequest, db: AsyncSession = Depends(get_db)):
+async def login_with_otp(payload: OtpLoginRequest, request: Request, db: AsyncSession = Depends(get_db)):
     is_valid = verify_otp(payload.email, payload.otp, purpose="login")
     if not is_valid:
         raise HTTPException(
@@ -233,6 +256,18 @@ async def login_with_otp(payload: OtpLoginRequest, db: AsyncSession = Depends(ge
         is_read=False,
     )
     db.add(login_notification)
+
+    # Record security audit telemetry
+    await record_audit_event(
+        db=db,
+        action="OTP_LOGIN",
+        entity_type="User",
+        entity_id=str(user.id),
+        actor_user_id=user.id,
+        details=f"Authenticated via passwordless OTP ({', '.join(roles)})",
+        request=request,
+    )
+
     await db.commit()
 
     # Dispatch security alert email
