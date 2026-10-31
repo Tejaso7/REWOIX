@@ -6,7 +6,6 @@ const nextConfig = {
       'images.unsplash.com',
       'commondatastorage.googleapis.com',
       'rewoix-media.blob.core.windows.net',
-      'eduflow-media.blob.core.windows.net',
     ],
   },
   async rewrites() {

@@ -28,4 +28,4 @@ class CertificateVerificationResponse(BaseModel):
     course_title: str
     teacher_name: str
     issue_date: datetime
-    platform_name: str = "EduFlow Learning Marketplace"
+    platform_name: str = "REWOIX Corporate Simulator"

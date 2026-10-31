@@ -2,7 +2,7 @@ import sqlite3
 import os
 
 def sync_schema():
-    for db_path in ["./eduflow.db", "./rewoix.db"]:
+    for db_path in ["./rewoix.db"]:
         if not os.path.exists(db_path):
             continue
         conn = sqlite3.connect(db_path)

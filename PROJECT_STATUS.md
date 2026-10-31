@@ -1,4 +1,4 @@
-# Project Status Report - EduFlow Learning Marketplace LMS
+# Project Status Report - REWOIX Corporate Simulator LMS
 
 ## 🟢 1. Implemented Features
 
@@ -69,7 +69,7 @@ To connect live cloud providers in production, supply the following keys in `.en
 docker compose up --build
 
 # 2. Seed Database with Demo Data
-docker exec -it eduflow_backend python seed.py
+docker exec -it rewoix_backend python seed.py
 ```
 
 - **Frontend App**: `http://localhost:3000`

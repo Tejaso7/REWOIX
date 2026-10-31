@@ -1,4 +1,4 @@
-# EduFlow Security & Authorization Policy
+# REWOIX Security & Authorization Policy
 
 ## 1. Authentication & Session Security
 - Passwords are encrypted using bcrypt hashing algorithm before database persistence.

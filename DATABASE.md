@@ -1,4 +1,4 @@
-# EduFlow Relational Database Schema & Data Models
+# REWOIX Relational Database Schema & Data Models
 
 ## Key Relational Models
 

@@ -39,5 +39,5 @@ async def verify_certificate(
         course_title=cert.course.title if cert.course else "Course",
         teacher_name=cert.course.teacher.full_name if cert.course and cert.course.teacher else "Instructor",
         issue_date=cert.issue_date,
-        platform_name="EduFlow Learning Marketplace",
+        platform_name="REWOIX Corporate Simulator",
     )

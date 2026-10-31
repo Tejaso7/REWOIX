@@ -22,7 +22,6 @@ __pycache__/
 *.db
 *.sqlite
 *.sqlite3
-eduflow.db
 rewoix.db
 media/
 backend/media/
