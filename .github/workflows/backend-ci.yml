@@ -16,7 +16,7 @@ jobs:
         env:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: postgrespassword
-          POSTGRES_DB: eduflow_db
+          POSTGRES_DB: rewoix_db
         ports:
           - 5432:5432
         options: >-
@@ -45,7 +45,8 @@ jobs:
 
       - name: Run Pytest
         env:
-          DATABASE_URL: postgresql+asyncpg://postgres:postgrespassword@localhost:5432/eduflow_db
-          SECRET_KEY: test_secret_key
+          PYTHONPATH: backend
+          DATABASE_URL: sqlite+aiosqlite:///:memory:
+          SECRET_KEY: test_secret_key_rewoix_ci_123456789
         run: |
-          pytest backend/tests
+          pytest backend/tests -v

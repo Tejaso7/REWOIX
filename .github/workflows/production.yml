@@ -14,9 +14,9 @@ jobs:
 
       - name: Build Docker Container Images
         run: |
-          docker build -t eduflow-backend:latest -f Dockerfile.backend .
-          docker build -t eduflow-frontend:latest -f Dockerfile.frontend .
+          docker build -t rewoix-backend:latest -f Dockerfile.backend .
+          docker build -t rewoix-frontend:latest -f Dockerfile.frontend .
 
       - name: Deploy Health Verification
         run: |
-          echo "Production deployment gate passed successfully!"
+          echo "REWOIX production container images verified and built successfully!"

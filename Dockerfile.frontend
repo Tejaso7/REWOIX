@@ -2,14 +2,21 @@ FROM node:18-alpine AS base
 
 WORKDIR /app
 
+# Install dependencies based on lockfile
 COPY frontend/package.json frontend/package-lock.json* ./
-RUN npm install
+RUN npm ci
 
+# Copy application source
 COPY frontend/ .
+
+# Build production application
+ENV NEXT_TELEMETRY_DISABLED 1
+ENV NODE_ENV production
+RUN npm run build
 
 EXPOSE 3000
 
 ENV PORT 3000
 ENV HOSTNAME "0.0.0.0"
 
-CMD ["npm", "run", "dev"]
+CMD ["npm", "run", "start"]

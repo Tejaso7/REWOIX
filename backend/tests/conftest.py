@@ -6,7 +6,7 @@ from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine, async_sess
 from app.main import app
 from app.core.database import Base, get_db
 from app.core.security import create_access_token, get_password_hash
-from app.models.user import User, UserRole, UserRoleEnum
+from app.models.user import User, UserRole, UserRoleEnum, TeacherProfile
 
 TEST_DATABASE_URL = "sqlite+aiosqlite:///:memory:"
 
@@ -64,6 +64,7 @@ async def test_teacher_headers(db_session: AsyncSession):
     db_session.add(teacher)
     await db_session.flush()
     db_session.add(UserRole(user_id=teacher.id, role=UserRoleEnum.TEACHER))
+    db_session.add(TeacherProfile(user_id=teacher.id, headline="Senior Instructor"))
     await db_session.commit()
 
     token = create_access_token(subject=str(teacher.id), roles=["TEACHER"])
