@@ -42,6 +42,7 @@ const SIMULATION_TRACKS: SimulationTrack[] = [
     tools: ['SQL', 'Python', 'dbt', 'Snowflake'],
     difficulty: 'Advanced',
     isLocked: false,
+    thumbnail: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800&q=80',
   },
   {
     id: 'track-ecommerce-pricing',
@@ -51,6 +52,7 @@ const SIMULATION_TRACKS: SimulationTrack[] = [
     tools: ['Python', 'Tableau', 'PostgreSQL'],
     difficulty: 'Foundational',
     isLocked: false,
+    thumbnail: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800&q=80',
   },
   {
     id: 'track-saas-latency',
@@ -60,6 +62,7 @@ const SIMULATION_TRACKS: SimulationTrack[] = [
     tools: ['SQL', 'PowerBI', 'Kafka'],
     difficulty: 'Executive',
     isLocked: false,
+    thumbnail: 'https://images.unsplash.com/photo-1558494949-ef010cbdcc31?w=800&q=80',
   },
   {
     id: 'track-healthcare-triage',
@@ -69,6 +72,7 @@ const SIMULATION_TRACKS: SimulationTrack[] = [
     tools: ['Python', 'SQL', 'BigQuery'],
     difficulty: 'Advanced',
     isLocked: true,
+    thumbnail: 'https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?w=800&q=80',
   },
 ];
 
@@ -437,44 +441,58 @@ export default function HomePage() {
           {filteredTracks.map((track) => (
             <div
               key={track.id}
-              className="glass-card glass-card-hover p-6 rounded-3xl border border-slate-200 dark:border-white/10 flex flex-col justify-between space-y-5"
+              className="glass-card glass-card-hover rounded-3xl border border-slate-200 dark:border-white/10 overflow-hidden flex flex-col justify-between group shadow-xl"
             >
-              <div className="space-y-3">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <span className="px-2.5 py-1 rounded-md text-[10px] font-extrabold tracking-wider uppercase bg-cyan-500/10 text-cyan-600 dark:text-cyan-400 border border-cyan-500/20">
-                      {track.domain}
-                    </span>
-                    <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${
-                      track.difficulty === 'Executive' 
-                        ? 'bg-purple-500/10 text-purple-600 dark:text-purple-400' 
-                        : track.difficulty === 'Advanced' 
-                        ? 'bg-amber-500/10 text-amber-600 dark:text-amber-400' 
-                        : 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400'
-                    }`}>
-                      {track.difficulty}
-                    </span>
+              {/* Card Thumbnail Header */}
+              {track.thumbnail && (
+                <div className="relative h-44 w-full bg-slate-950 overflow-hidden">
+                  <img
+                    src={track.thumbnail}
+                    alt={track.title}
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 opacity-80 group-hover:opacity-100"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/40 to-transparent" />
+                  <div className="absolute top-3 left-3 right-3 flex items-center justify-between">
+                    <div className="flex items-center gap-1.5">
+                      <span className="px-2.5 py-1 rounded-md text-[10px] font-extrabold tracking-wider uppercase bg-black/60 backdrop-blur text-cyan-400 border border-white/15">
+                        {track.domain}
+                      </span>
+                      <span
+                        className={`px-2 py-0.5 rounded text-[10px] font-bold backdrop-blur ${
+                          track.difficulty === 'Executive'
+                            ? 'bg-purple-900/70 text-purple-300 border border-purple-500/30'
+                            : track.difficulty === 'Advanced'
+                            ? 'bg-amber-900/70 text-amber-300 border border-amber-500/30'
+                            : 'bg-emerald-900/70 text-emerald-300 border border-emerald-500/30'
+                        }`}
+                      >
+                        {track.difficulty}
+                      </span>
+                    </div>
+
+                    {track.isLocked ? (
+                      <span className="inline-flex items-center gap-1 text-[10px] text-slate-300 bg-black/70 backdrop-blur px-2.5 py-1 rounded-full font-bold border border-white/10">
+                        <Lock className="w-3 h-3 text-slate-400" /> Phase 2
+                      </span>
+                    ) : (
+                      <span className="inline-flex items-center gap-1 text-[10px] text-emerald-400 bg-emerald-950/80 backdrop-blur px-2.5 py-1 rounded-full font-bold border border-emerald-500/30">
+                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" /> Live
+                      </span>
+                    )}
                   </div>
-
-                  {track.isLocked ? (
-                    <span className="inline-flex items-center gap-1 text-[10px] text-slate-400 bg-slate-200 dark:bg-slate-800 px-2.5 py-1 rounded-full font-bold">
-                      <Lock className="w-3 h-3" /> Coming in Phase 2
-                    </span>
-                  ) : (
-                    <span className="inline-flex items-center gap-1 text-[10px] text-emerald-500 bg-emerald-500/10 px-2.5 py-1 rounded-full font-bold">
-                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" /> Live Simulation
-                    </span>
-                  )}
                 </div>
+              )}
 
-                <h3 className="text-lg font-bold text-slate-900 dark:text-white">
-                  {track.title}
-                </h3>
+              <div className="p-6 space-y-4 flex-1 flex flex-col justify-between">
+                <div className="space-y-2.5">
+                  <h3 className="text-xl font-bold text-slate-900 dark:text-white group-hover:text-cyan-400 transition-colors leading-snug">
+                    {track.title}
+                  </h3>
 
-                <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed line-clamp-3">
-                  {track.brief}
-                </p>
-              </div>
+                  <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed line-clamp-3">
+                    {track.brief}
+                  </p>
+                </div>
 
               <div className="space-y-4 pt-3 border-t border-slate-200 dark:border-white/10">
                 {/* Tools Badges */}
@@ -507,7 +525,8 @@ export default function HomePage() {
                 </div>
               </div>
             </div>
-          ))}
+          </div>
+        ))}
         </div>
 
         {/* Modal Drawer for Track Brief */}

@@ -22,7 +22,8 @@ import {
   ChevronUp,
   CreditCard,
   FileCheck2,
-  Check
+  Check,
+  X as CloseIcon
 } from 'lucide-react';
 import { Course } from '@/types';
 import { getCurrentUser } from '@/lib/auth';
@@ -45,6 +46,8 @@ export default function CourseDetailPage() {
   const [error, setError] = useState('');
   const [successModal, setSuccessModal] = useState(false);
   const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({});
+  const [previewVideoUrl, setPreviewVideoUrl] = useState<string | null>(null);
+  const [imgError, setImgError] = useState(false);
 
   useEffect(() => {
     // Inject Razorpay Checkout SDK script dynamically
@@ -215,9 +218,52 @@ export default function CourseDetailPage() {
   const originalPrice = course.price;
   const discountPercent = originalPrice > payablePrice ? Math.round(((originalPrice - payablePrice) / originalPrice) * 100) : 0;
   const totalLessons = course.sections ? course.sections.reduce((acc, s) => acc + (s.lessons?.length || 0), 0) : 0;
+  const firstPreviewLesson = course.sections
+    ?.flatMap((s) => s.lessons || [])
+    .find((l) => l.is_preview && l.video_url);
+  const previewSampleUrl = firstPreviewLesson?.video_url || 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4';
 
   return (
     <div className="min-h-screen pb-28">
+      {/* Video Preview Modal */}
+      {previewVideoUrl && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md p-4 animate-fadeIn">
+          <div className="glass-card max-w-3xl w-full p-4 sm:p-6 rounded-3xl border border-white/20 shadow-2xl space-y-4 bg-slate-950">
+            <div className="flex items-center justify-between pb-2 border-b border-white/10">
+              <div className="flex items-center gap-2 text-xs font-bold text-cyan-400">
+                <PlayCircle className="w-4 h-4" /> Free Masterclass Lesson Preview
+              </div>
+              <button
+                onClick={() => setPreviewVideoUrl(null)}
+                className="p-1 rounded-lg text-slate-400 hover:text-white hover:bg-white/10 transition-colors"
+              >
+                <CloseIcon className="w-5 h-5" />
+              </button>
+            </div>
+            <div className="relative aspect-video rounded-2xl overflow-hidden bg-black border border-white/10 shadow-inner">
+              <video
+                src={previewVideoUrl}
+                controls
+                autoPlay
+                className="w-full h-full object-contain"
+              />
+            </div>
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs text-slate-400 pt-1">
+              <span className="font-semibold text-white">{course.title}</span>
+              <button
+                onClick={() => {
+                  setPreviewVideoUrl(null);
+                  handleEnrollCheckout(false);
+                }}
+                className="gradient-button px-5 py-2.5 rounded-xl text-white font-bold shadow-md hover:scale-105 transition-transform"
+              >
+                Enroll to Unlock Full Track
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Success Modal */}
       {successModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-md p-4 animate-fadeIn">
@@ -323,20 +369,36 @@ export default function CourseDetailPage() {
 
           {/* Right Sticky Checkout Sidebar */}
           <div className="lg:sticky lg:top-24 glass-card p-6 rounded-3xl border border-white/10 shadow-2xl space-y-6 bg-slate-900/90 backdrop-blur-xl">
-            {course.thumbnail_url ? (
-              <div className="relative rounded-2xl overflow-hidden h-48 bg-slate-800 border border-white/10 group">
-                <img src={course.thumbnail_url} alt={course.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent flex items-end p-4">
-                  <span className="text-[10px] font-bold text-white bg-blue-600/80 backdrop-blur px-2.5 py-1 rounded-md flex items-center gap-1">
-                    <PlayCircle className="w-3.5 h-3.5" /> Interactive Workspace Simulation
+            {!imgError && course.thumbnail_url ? (
+              <div 
+                onClick={() => setPreviewVideoUrl(previewSampleUrl)}
+                className="relative rounded-2xl overflow-hidden h-48 bg-slate-950 border border-white/10 group cursor-pointer shadow-lg"
+              >
+                <img 
+                  src={course.thumbnail_url} 
+                  alt={course.title} 
+                  onError={() => setImgError(true)}
+                  className="w-full h-full object-cover group-hover:scale-108 transition-transform duration-500 opacity-90 group-hover:opacity-100" 
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/25 to-transparent flex flex-col justify-end p-4 group-hover:from-black/90 transition-colors">
+                  <div className="w-10 h-10 rounded-full bg-cyan-500/90 text-white flex items-center justify-center mb-1.5 mx-auto shadow-lg shadow-cyan-500/30 group-hover:scale-110 transition-transform">
+                    <PlayCircle className="w-6 h-6 fill-white text-slate-900" />
+                  </div>
+                  <span className="text-[11px] font-bold text-white text-center">
+                    Watch Free Masterclass Preview
                   </span>
                 </div>
               </div>
             ) : (
-              <div className="rounded-2xl h-44 bg-gradient-to-br from-blue-900/40 to-cyan-900/40 border border-white/10 flex flex-col items-center justify-center p-6 text-center space-y-2">
-                <Building className="w-8 h-8 text-cyan-400" />
+              <div 
+                onClick={() => setPreviewVideoUrl(previewSampleUrl)}
+                className="rounded-2xl h-44 bg-gradient-to-br from-blue-900/40 via-cyan-950/40 to-slate-950 border border-white/10 flex flex-col items-center justify-center p-6 text-center space-y-2 cursor-pointer group shadow-lg"
+              >
+                <div className="w-10 h-10 rounded-full bg-cyan-500/10 border border-cyan-500/30 text-cyan-400 flex items-center justify-center group-hover:scale-110 transition-transform">
+                  <PlayCircle className="w-6 h-6" />
+                </div>
                 <span className="text-xs font-bold text-white">REWOIX Corporate Simulator</span>
-                <span className="text-[10px] text-slate-400">Real business datasets & stakeholder pushback</span>
+                <span className="text-[10px] text-cyan-400">Click to preview scenario</span>
               </div>
             )}
 
@@ -498,7 +560,16 @@ export default function CourseDetailPage() {
                           {section.lessons && section.lessons.map((lesson) => (
                             <div
                               key={lesson.id}
-                              className="flex items-center justify-between py-2.5 px-3 rounded-xl hover:bg-white/5 transition-colors text-xs text-slate-700 dark:text-slate-300"
+                              onClick={() => {
+                                if (lesson.is_preview) {
+                                  setPreviewVideoUrl(lesson.video_url || previewSampleUrl);
+                                }
+                              }}
+                              className={`flex items-center justify-between py-2.5 px-3 rounded-xl transition-colors text-xs text-slate-700 dark:text-slate-300 ${
+                                lesson.is_preview
+                                  ? 'cursor-pointer hover:bg-cyan-500/10 hover:text-cyan-400'
+                                  : 'hover:bg-white/5 opacity-80'
+                              }`}
                             >
                               <div className="flex items-center gap-2.5">
                                 {lesson.is_preview ? (
@@ -510,8 +581,8 @@ export default function CourseDetailPage() {
                               </div>
                               <div className="flex items-center gap-2">
                                 {lesson.is_preview && (
-                                  <span className="text-[10px] font-bold text-cyan-400 bg-cyan-500/10 border border-cyan-500/20 px-2 py-0.5 rounded">
-                                    Free Preview
+                                  <span className="text-[10px] font-bold text-cyan-400 bg-cyan-500/10 border border-cyan-500/20 px-2 py-0.5 rounded cursor-pointer">
+                                    Free Preview ▶
                                   </span>
                                 )}
                                 {lesson.video_duration_seconds > 0 && (

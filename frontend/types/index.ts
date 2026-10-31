@@ -114,6 +114,7 @@ export interface SimulationTrack {
   tools: string[];
   difficulty: "Foundational" | "Advanced" | "Executive";
   isLocked: boolean;
+  thumbnail?: string;
 }
 
 export interface WaitlistPayload {
