@@ -3,6 +3,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from sqlalchemy.orm import selectinload
 from app.core.database import get_db
+from app.core.config import settings
 from app.core.security import (
     verify_password,
     get_password_hash,
@@ -78,11 +79,13 @@ async def register(user_in: UserRegister, db: AsyncSession = Depends(get_db)):
             detail="User with this email already exists",
         )
 
-    role_enum = UserRoleEnum.LEARNER
-    if user_in.role.upper() == "TEACHER":
-        role_enum = UserRoleEnum.TEACHER
-    elif user_in.role.upper() == "ADMIN":
-        role_enum = UserRoleEnum.ADMIN
+    role_str = user_in.role.upper()
+    if role_str == "ADMIN":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Administrator accounts cannot be self-registered via public API",
+        )
+    role_enum = UserRoleEnum.TEACHER if role_str == "TEACHER" else UserRoleEnum.LEARNER
 
     user = User(
         email=user_in.email,
@@ -172,7 +175,7 @@ async def send_otp(payload: SendOtpRequest):
     return OtpResponse(
         success=True,
         message="Verification OTP sent successfully",
-        debug_otp=code,
+        debug_otp=code if settings.DEBUG else None,
     )
 
 

@@ -2,8 +2,11 @@ import pytest
 from httpx import AsyncClient
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
+from decimal import Decimal
+from app.core.security import get_password_hash
 from app.models.notification import Notification
-from app.models.user import User
+from app.models.user import User, UserRole, UserRoleEnum
+from app.models.course import Course, CourseSection, Lesson, CourseStatusEnum, CourseLevelEnum
 
 
 @pytest.mark.asyncio
@@ -131,6 +134,76 @@ async def test_student_learner_user_story(client: AsyncClient, db_session: Async
     assert me.status_code == 200
     assert me.json()["learner_profile"]["primary_learning_goal"] == "Master SQL, dbt, and Fintech churn prediction simulations"
 
+    # 7. Create a published course for simulation enrollment
+    test_teacher = User(
+        email="course_teacher@rewoix.com",
+        hashed_password=get_password_hash("TeacherPass123"),
+        full_name="Lead Fintech Mentor",
+        is_active=True,
+    )
+    db_session.add(test_teacher)
+    await db_session.flush()
+    db_session.add(UserRole(user_id=test_teacher.id, role=UserRoleEnum.TEACHER))
+
+    sim_course = Course(
+        teacher_id=test_teacher.id,
+        title="High-Frequency Payment Routing",
+        slug="hft-payment-routing",
+        price=Decimal("1999.00"),
+        status=CourseStatusEnum.PUBLISHED,
+        level=CourseLevelEnum.INTERMEDIATE,
+    )
+    db_session.add(sim_course)
+    await db_session.flush()
+
+    sec = CourseSection(course_id=sim_course.id, title="Architecture", order_index=1)
+    db_session.add(sec)
+    await db_session.flush()
+
+    les = Lesson(section_id=sec.id, title="Idempotency Keys", order_index=1, video_duration_seconds=600)
+    db_session.add(les)
+    await db_session.commit()
+
+    courses_resp = await client.get("/courses")
+    assert courses_resp.status_code == 200
+    course_list = courses_resp.json()
+    assert len(course_list) > 0
+    target_course = course_list[0]
+
+    order_resp = await client.post("/payments/create-order", json={"course_id": target_course["id"]}, headers=headers)
+    assert order_resp.status_code in [200, 201]
+    order_data = order_resp.json()
+
+    verify_pay = await client.post("/payments/verify", json={
+        "order_id": order_data["id"],
+        "gateway_order_id": order_data["gateway_order_id"],
+        "gateway_payment_id": "pay_test_12345",
+        "gateway_signature": "mock_signature_dev"
+    }, headers=headers)
+    assert verify_pay.status_code == 200
+
+    player_resp = await client.get(f"/learning/courses/{target_course['id']}/player", headers=headers)
+    assert player_resp.status_code == 200
+    player_data = player_resp.json()
+    if player_data.get("sections") and player_data["sections"][0].get("lessons"):
+        lesson_id = player_data["sections"][0]["lessons"][0]["id"]
+        prog_resp = await client.post(f"/learning/lessons/{lesson_id}/progress", json={
+            "progress_seconds": 1000,
+            "completed": True
+        }, headers=headers)
+        assert prog_resp.status_code == 200
+
+    my_courses = await client.get("/learning/my-courses", headers=headers)
+    assert my_courses.status_code == 200
+    enrolled_items = my_courses.json()
+    assert len(enrolled_items) > 0
+    cert_no = enrolled_items[0].get("certificate_number")
+    if cert_no:
+        cert_verify = await client.get(f"/certificates/verify/{cert_no}")
+        assert cert_verify.status_code == 200
+        assert cert_verify.json()["is_valid"] is True
+        assert cert_verify.json()["platform_name"] == "REWOIX Corporate Simulator"
+
 
 @pytest.mark.asyncio
 async def test_teacher_instructor_user_story(client: AsyncClient, db_session: AsyncSession):
@@ -223,19 +296,32 @@ async def test_admin_operator_user_story(client: AsyncClient, db_session: AsyncS
     email = "admin_story@rewoix.com"
     pwd = "AdminPassword123"
 
-    # 1. Register Admin
-    reg = await client.post("/auth/register", json={
+    # 1. Verify that public registration blocks self-assigning ADMIN role
+    reg_blocked = await client.post("/auth/register", json={
         "email": email,
         "password": pwd,
         "full_name": "Chief Platform Operator",
         "role": "ADMIN"
     })
-    assert reg.status_code == 201
+    assert reg_blocked.status_code == 403
 
-    # 2. Login
+    # 2. Seed an administrative user directly via database
+    admin_user = User(
+        email="admin_operator@rewoix.com",
+        hashed_password=get_password_hash("AdminPass123"),
+        full_name="Platform Admin",
+        is_active=True,
+        is_verified=True,
+    )
+    db_session.add(admin_user)
+    await db_session.flush()
+    db_session.add(UserRole(user_id=admin_user.id, role=UserRoleEnum.ADMIN))
+    await db_session.commit()
+
+    # Authenticate as authorized Platform Administrator
     login = await client.post("/auth/login", json={
-        "email": email,
-        "password": pwd
+        "email": "admin_operator@rewoix.com",
+        "password": "AdminPass123"
     })
     assert login.status_code == 200
     token = login.json()["access_token"]

@@ -6,6 +6,7 @@ from sqlalchemy.orm import selectinload
 
 from app.core.database import get_db
 from app.models.certificate import Certificate
+from app.models.course import Course
 from app.schemas.certificate import CertificateResponse, CertificateVerificationResponse
 
 router = APIRouter(prefix="/certificates", tags=["Certificates"])

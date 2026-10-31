@@ -58,19 +58,19 @@ export default function RegisterPage() {
           <div className="w-12 h-12 rounded-2xl gradient-button flex items-center justify-center mx-auto shadow-lg">
             <BookOpen className="w-6 h-6 text-white" />
           </div>
-          <h1 className="text-2xl font-bold text-white">Create Account</h1>
-          <p className="text-xs text-slate-400">Join REWOIX as a Student or Teacher</p>
+          <h1 className="text-2xl font-extrabold text-slate-900 dark:text-white">Create Account</h1>
+          <p className="text-xs text-slate-500 dark:text-slate-400">Join REWOIX as a Student or Teacher</p>
         </div>
 
         {error && (
-          <div className="p-3 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 text-xs text-center">
+          <div className="p-3 rounded-xl bg-red-500/10 border border-red-500/20 text-red-500 dark:text-red-400 text-xs text-center">
             {error}
           </div>
         )}
 
         <form onSubmit={handleRegister} className="space-y-4">
           <div>
-            <label className="block text-xs font-semibold text-slate-300 mb-1.5">Account Role</label>
+            <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">Account Role</label>
             <div className="grid grid-cols-2 gap-3">
               <button
                 type="button"
@@ -78,7 +78,7 @@ export default function RegisterPage() {
                 className={`py-2.5 rounded-xl border text-xs font-bold transition-colors ${
                   role === 'LEARNER'
                     ? 'bg-blue-600 border-blue-500 text-white'
-                    : 'bg-slate-900 border-slate-700 text-slate-400'
+                    : 'bg-slate-100 dark:bg-slate-900 border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-800'
                 }`}
               >
                 Learner / Student
@@ -89,7 +89,7 @@ export default function RegisterPage() {
                 className={`py-2.5 rounded-xl border text-xs font-bold transition-colors ${
                   role === 'TEACHER'
                     ? 'bg-purple-600 border-purple-500 text-white'
-                    : 'bg-slate-900 border-slate-700 text-slate-400'
+                    : 'bg-slate-100 dark:bg-slate-900 border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-800'
                 }`}
               >
                 Teacher / Instructor
@@ -98,38 +98,38 @@ export default function RegisterPage() {
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-slate-300 mb-1.5">Full Name</label>
+            <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">Full Name</label>
             <input
               type="text"
               required
               value={fullName}
               onChange={(e) => setFullName(e.target.value)}
               placeholder="e.g. Alex Johnson"
-              className="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-blue-500"
+              className="w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl px-4 py-3 text-xs text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:border-cyan-400 transition-colors"
             />
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-slate-300 mb-1.5">Email Address</label>
+            <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">Email Address</label>
             <input
               type="email"
               required
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="e.g. alex@example.com"
-              className="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-blue-500"
+              className="w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl px-4 py-3 text-xs text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:border-cyan-400 transition-colors"
             />
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-slate-300 mb-1.5">Password</label>
+            <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">Password</label>
             <input
               type="password"
               required
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder="At least 6 characters"
-              className="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-blue-500"
+              className="w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl px-4 py-3 text-xs text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:border-cyan-400 transition-colors"
             />
           </div>
 

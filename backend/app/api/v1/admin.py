@@ -368,6 +368,12 @@ async def approve_payout(
     if not payout:
         raise HTTPException(status_code=404, detail="Payout not found")
 
+    if payout.status != "PENDING":
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Cannot approve payout with status '{payout.status}'. Only PENDING payouts can be approved.",
+        )
+
     payout.status = "PAID"
     payout.reference_number = reference_number
     payout.processed_at = datetime.now(timezone.utc)
@@ -379,6 +385,53 @@ async def approve_payout(
             entity_type="Payout",
             entity_id=str(payout.id),
             details=f"Approved payout of {payout.amount} {payout.currency}",
+        )
+    )
+
+    await db.commit()
+    await db.refresh(payout)
+
+    return PayoutResponse(
+        id=payout.id,
+        teacher_id=payout.teacher_id,
+        amount=payout.amount,
+        currency=payout.currency,
+        status=payout.status,
+        reference_number=payout.reference_number,
+        notes=payout.notes,
+        requested_at=payout.requested_at,
+        processed_at=payout.processed_at,
+    )
+
+
+@router.post("/payouts/{payout_id}/reject", response_model=PayoutResponse)
+async def reject_payout(
+    payout_id: UUID,
+    reason: Optional[str] = None,
+    current_user: User = Depends(require_roles([UserRoleEnum.ADMIN])),
+    db: AsyncSession = Depends(get_db),
+):
+    payout = await db.get(Payout, payout_id)
+    if not payout:
+        raise HTTPException(status_code=404, detail="Payout not found")
+
+    if payout.status != "PENDING":
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Cannot reject payout with status '{payout.status}'. Only PENDING payouts can be rejected.",
+        )
+
+    payout.status = "REJECTED"
+    payout.notes = f"{payout.notes or ''} [Admin Rejection: {reason or 'Declined by Administrator'}]".strip()
+    payout.processed_at = datetime.now(timezone.utc)
+
+    db.add(
+        AuditLog(
+            actor_user_id=current_user.id,
+            action="PAYOUT_REJECTED",
+            entity_type="Payout",
+            entity_id=str(payout.id),
+            details=f"Rejected payout of {payout.amount} {payout.currency}. Reason: {reason or 'None'}",
         )
     )
 

@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
-import { Award, CheckCircle, ShieldCheck, Calendar, BookOpen, User, Download, ArrowLeft, ExternalLink } from 'lucide-react';
+import { Award, CheckCircle, ShieldCheck, Calendar, BookOpen, User, Download, ArrowLeft, ExternalLink, AlertCircle } from 'lucide-react';
 import { fetchApi } from '@/lib/api';
 
 export default function CertificateVerificationPage() {
@@ -20,14 +20,18 @@ export default function CertificateVerificationPage() {
         const data = await fetchApi<any>(`/certificates/verify/${certId}`);
         setCertData(data);
       } catch (err: any) {
-        // Fallback for demo certificate presentation
-        setCertData({
-          learner_name: 'Elena Rostova',
-          course_title: 'Fintech Payment Rail Churn Diagnostics & SEPA Retention Modeling',
-          teacher_name: 'Lead BI Architect @ NexusPay Global',
-          issue_date: new Date().toISOString(),
-          certificate_number: certId || 'RWX-CERT-2026-FIN88',
-        });
+        if (certId === 'RWX-CERT-DEMO') {
+          // Demo certificate presentation
+          setCertData({
+            learner_name: 'Elena Rostova',
+            course_title: 'Fintech Payment Rail Churn Diagnostics & SEPA Retention Modeling',
+            teacher_name: 'Lead BI Architect @ NexusPay Global',
+            issue_date: new Date().toISOString(),
+            certificate_number: 'RWX-CERT-DEMO',
+          });
+        } else {
+          setError(err.message || 'Invalid certificate or certificate not found');
+        }
       } finally {
         setLoading(false);
       }
@@ -40,6 +44,30 @@ export default function CertificateVerificationPage() {
       <div className="max-w-4xl mx-auto px-6 py-24 text-center space-y-4">
         <div className="w-12 h-12 border-4 border-blue-500/20 border-t-cyan-400 rounded-full animate-spin mx-auto" />
         <p className="text-xs font-semibold text-slate-400">Verifying cryptographic certificate hash on REWOIX registry...</p>
+      </div>
+    );
+  }
+
+  if (error || !certData) {
+    return (
+      <div className="max-w-md mx-auto px-6 py-24 text-center space-y-6">
+        <div className="w-16 h-16 rounded-2xl bg-red-500/10 border border-red-500/20 text-red-500 dark:text-red-400 flex items-center justify-center mx-auto shadow-lg">
+          <AlertCircle className="w-8 h-8" />
+        </div>
+        <div className="space-y-2">
+          <h2 className="text-xl font-bold text-slate-900 dark:text-white">Certificate Verification Failed</h2>
+          <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
+            {error || `The credential identifier "${certId}" is invalid or could not be found in the REWOIX registry.`}
+          </p>
+        </div>
+        <div>
+          <Link
+            href="/courses"
+            className="inline-flex items-center gap-2 gradient-button px-6 py-3 rounded-xl text-xs font-bold text-white shadow-md"
+          >
+            Explore Corporate Tracks
+          </Link>
+        </div>
       </div>
     );
   }

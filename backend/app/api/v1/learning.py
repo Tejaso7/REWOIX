@@ -43,6 +43,11 @@ async def get_my_enrolled_courses(
     result = await db.execute(stmt)
     enrollments = result.scalars().all()
 
+    # Fetch user certificates
+    stmt_certs = select(Certificate).where(Certificate.learner_id == current_user.id)
+    certs_res = await db.execute(stmt_certs)
+    cert_map = {c.course_id: c.certificate_number for c in certs_res.scalars().all()}
+
     return [
         EnrollmentResponse(
             id=e.id,
@@ -52,6 +57,7 @@ async def get_my_enrolled_courses(
             teacher_name=e.course.teacher.full_name if e.course and e.course.teacher else "Instructor",
             progress_percentage=e.progress_percentage,
             is_completed=e.is_completed,
+            certificate_number=cert_map.get(e.course_id),
             enrolled_at=e.enrolled_at,
         )
         for e in enrollments

@@ -58,7 +58,9 @@ export default function TeacherEarningsPage() {
     return <div className="p-12 text-center text-slate-500 dark:text-slate-400">Loading teacher financial ledger...</div>;
   }
 
-  const transactions = Array.isArray(data?.transactions) ? data.transactions : [];
+  const transactions = Array.isArray(data?.recent_transactions) 
+    ? data.recent_transactions 
+    : (Array.isArray(data?.transactions) ? data.transactions : []);
 
   return (
     <div className="max-w-7xl mx-auto px-6 py-12 space-y-8">
@@ -197,13 +199,13 @@ export default function TeacherEarningsPage() {
                       {tx.course_title || 'Workplace Simulation'}
                     </td>
                     <td className="p-4 text-slate-700 dark:text-slate-300 font-semibold">
-                      ₹{parseFloat(tx.gross_amount).toLocaleString('en-IN')}
+                      ₹{parseFloat(tx.gross_amount || 0).toLocaleString('en-IN')}
                     </td>
                     <td className="p-4 font-extrabold text-emerald-600 dark:text-emerald-400">
-                      ₹{parseFloat(tx.teacher_share_amount).toLocaleString('en-IN')}
+                      ₹{parseFloat(tx.teacher_amount ?? tx.teacher_share_amount ?? 0).toLocaleString('en-IN')}
                     </td>
                     <td className="p-4 text-slate-500 dark:text-slate-400">
-                      ₹{parseFloat(tx.platform_share_amount).toLocaleString('en-IN')}
+                      ₹{parseFloat(tx.platform_commission_amount ?? tx.platform_share_amount ?? 0).toLocaleString('en-IN')}
                     </td>
                     <td className="p-4 text-slate-500 dark:text-slate-400">
                       {new Date(tx.created_at).toLocaleDateString()}

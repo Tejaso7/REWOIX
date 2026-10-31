@@ -8,6 +8,7 @@ from app.models.certificate import Certificate
 from app.models.notification import Notification
 from app.models.audit import AuditLog
 from app.models.settings import PlatformSetting, CommissionRule
+from app.models.waitlist import WaitlistEntry
 
 __all__ = [
     "User",
@@ -40,4 +41,5 @@ __all__ = [
     "AuditLog",
     "PlatformSetting",
     "CommissionRule",
+    "WaitlistEntry",
 ]

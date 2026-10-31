@@ -1,4 +1,5 @@
 import smtplib
+import asyncio
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from typing import Optional, Dict, Any
@@ -76,29 +77,32 @@ async def send_email(
         print(f"\n[REWOIX EMAIL SIMULATION] >>> To: {email_to}\nSubject: {subject}\n{body_text or 'HTML Body Generated'}\n")
         return True
 
-    try:
-        msg = MIMEMultipart("alternative")
-        msg["Subject"] = subject
-        msg["From"] = f"{settings.EMAILS_FROM_NAME} <{settings.EMAILS_FROM_EMAIL}>"
-        msg["To"] = email_to
+    def _send_smtp_sync() -> bool:
+        try:
+            msg = MIMEMultipart("alternative")
+            msg["Subject"] = subject
+            msg["From"] = f"{settings.EMAILS_FROM_NAME} <{settings.EMAILS_FROM_EMAIL}>"
+            msg["To"] = email_to
 
-        if body_text:
-            msg.attach(MIMEText(body_text, "plain"))
-        msg.attach(MIMEText(body_html, "html"))
+            if body_text:
+                msg.attach(MIMEText(body_text, "plain"))
+            msg.attach(MIMEText(body_html, "html"))
 
-        with smtplib.SMTP(settings.SMTP_HOST, settings.SMTP_PORT) as server:
-            server.ehlo()
-            if settings.SMTP_PORT == 587:
-                server.starttls()
-            if settings.SMTP_USER and settings.SMTP_PASSWORD:
-                server.login(settings.SMTP_USER, settings.SMTP_PASSWORD)
-            server.sendmail(settings.EMAILS_FROM_EMAIL, [email_to], msg.as_string())
+            with smtplib.SMTP(settings.SMTP_HOST, settings.SMTP_PORT) as server:
+                server.ehlo()
+                if settings.SMTP_PORT == 587:
+                    server.starttls()
+                if settings.SMTP_USER and settings.SMTP_PASSWORD:
+                    server.login(settings.SMTP_USER, settings.SMTP_PASSWORD)
+                server.sendmail(settings.EMAILS_FROM_EMAIL, [email_to], msg.as_string())
 
-        logger.info(f"Successfully sent email to {email_to} via {settings.SMTP_HOST}")
-        return True
-    except Exception as e:
-        logger.error(f"Failed to send email to {email_to}: {e}")
-        return False
+            logger.info(f"Successfully sent email to {email_to} via {settings.SMTP_HOST}")
+            return True
+        except Exception as e:
+            logger.error(f"Failed to send email to {email_to}: {e}")
+            return False
+
+    return await asyncio.to_thread(_send_smtp_sync)
 
 
 async def send_otp_email(email_to: str, otp: str, purpose: str = "login") -> bool:

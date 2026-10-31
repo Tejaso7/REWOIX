@@ -75,6 +75,7 @@ export interface Enrollment {
   teacher_name: string;
   progress_percentage: number;
   is_completed: boolean;
+  certificate_number?: string;
   enrolled_at: string;
 }
 

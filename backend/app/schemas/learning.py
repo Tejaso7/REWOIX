@@ -46,6 +46,7 @@ class EnrollmentResponse(BaseModel):
     teacher_name: str
     progress_percentage: float
     is_completed: bool
+    certificate_number: Optional[str] = None
     enrolled_at: datetime
 
     class Config:

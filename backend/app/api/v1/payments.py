@@ -1,4 +1,6 @@
 import uuid
+import hmac
+import hashlib
 from decimal import Decimal
 from datetime import datetime, timezone
 from fastapi import APIRouter, Depends, HTTPException, status, Request
@@ -92,6 +94,74 @@ async def create_checkout_order(
     )
 
 
+async def _fulfill_successful_order(
+    order: Order, gateway_payment_id: str, gateway_signature: str, db: AsyncSession
+) -> Enrollment:
+    order.status = OrderStatusEnum.SUCCESS
+    payment_record = Payment(
+        order_id=order.id,
+        gateway_payment_id=gateway_payment_id,
+        gateway_signature=gateway_signature,
+        status="SUCCESS",
+    )
+    db.add(payment_record)
+
+    # 1. Create Enrollment if not existing
+    stmt_e = select(Enrollment).where(Enrollment.order_id == order.id)
+    enrollment = (await db.execute(stmt_e)).scalar_one_or_none()
+    if not enrollment:
+        enrollment = Enrollment(
+            learner_id=order.learner_id,
+            course_id=order.course_id,
+            order_id=order.id,
+        )
+        db.add(enrollment)
+
+        # Increment course total learners
+        course = order.course
+        if course:
+            course.total_learners += 1
+
+        # 2. Calculate Dynamic Revenue Split & Create Financial Ledger Entry
+        teacher_share_percent = settings.DEFAULT_TEACHER_SHARE_PERCENT
+        t_prof = None
+        if course:
+            stmt_t = select(TeacherProfile).where(TeacherProfile.user_id == course.teacher_id)
+            t_prof = (await db.execute(stmt_t)).scalar_one_or_none()
+            if t_prof and t_prof.custom_commission_percent is not None:
+                teacher_share_percent = float(t_prof.custom_commission_percent)
+
+        platform_comm_percent = 100.0 - teacher_share_percent
+
+        gross = order.amount
+        platform_comm_amount = Decimal(str(round(float(gross) * (platform_comm_percent / 100.0), 2)))
+        teacher_amount = Decimal(str(round(float(gross) * (teacher_share_percent / 100.0), 2)))
+        net_platform = platform_comm_amount
+
+        rev_transaction = RevenueTransaction(
+            order_id=order.id,
+            course_id=order.course_id,
+            teacher_id=course.teacher_id if course else order.learner_id,
+            gross_amount=gross,
+            platform_commission_percent=platform_comm_percent,
+            platform_commission_amount=platform_comm_amount,
+            teacher_share_percent=teacher_share_percent,
+            teacher_amount=teacher_amount,
+            net_platform_amount=net_platform,
+            status="SETTLED",
+        )
+        db.add(rev_transaction)
+
+        # Update Teacher total earnings profile
+        if t_prof:
+            current_earnings = Decimal(t_prof.total_earnings or "0.00")
+            t_prof.total_earnings = str(current_earnings + teacher_amount)
+
+    await db.commit()
+    await db.refresh(enrollment)
+    return enrollment
+
+
 @router.post("/verify", response_model=PaymentVerifyResponse)
 async def verify_payment_and_enroll(
     verify_in: PaymentVerifyRequest,
@@ -103,6 +173,13 @@ async def verify_payment_and_enroll(
 
     if not order:
         raise HTTPException(status_code=404, detail="Order not found")
+
+    # IDOR Prevention: Ensure order belongs to current user
+    if order.learner_id != current_user.id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="You are not authorized to verify an order that does not belong to your account",
+        )
 
     if order.status == OrderStatusEnum.SUCCESS:
         # Already processed
@@ -134,69 +211,12 @@ async def verify_payment_and_enroll(
         await db.commit()
         raise HTTPException(status_code=400, detail="Invalid payment signature")
 
-    # Mark Order as Success
-    order.status = OrderStatusEnum.SUCCESS
-    payment_record = Payment(
-        order_id=order.id,
+    enrollment = await _fulfill_successful_order(
+        order=order,
         gateway_payment_id=verify_in.gateway_payment_id,
         gateway_signature=verify_in.gateway_signature,
-        status="SUCCESS",
+        db=db,
     )
-    db.add(payment_record)
-
-    # 1. Create Enrollment
-    enrollment = Enrollment(
-        learner_id=current_user.id,
-        course_id=order.course_id,
-        order_id=order.id,
-    )
-    db.add(enrollment)
-
-    # Increment course total learners
-    course = order.course
-    if course:
-        course.total_learners += 1
-
-    # 2. Calculate Dynamic Revenue Split & Create Financial Ledger Entry
-    teacher_share_percent = settings.DEFAULT_TEACHER_SHARE_PERCENT
-    t_prof = None
-    if course:
-        stmt_t = select(TeacherProfile).where(TeacherProfile.user_id == course.teacher_id)
-        t_prof = (await db.execute(stmt_t)).scalar_one_or_none()
-        if t_prof and t_prof.custom_commission_percent is not None:
-            teacher_share_percent = float(t_prof.custom_commission_percent)
-
-    platform_comm_percent = 100.0 - teacher_share_percent
-
-    gross = order.amount
-    platform_comm_amount = Decimal(str(round(float(gross) * (platform_comm_percent / 100.0), 2)))
-    teacher_amount = Decimal(str(round(float(gross) * (teacher_share_percent / 100.0), 2)))
-    net_platform = platform_comm_amount
-
-    rev_transaction = RevenueTransaction(
-        order_id=order.id,
-        course_id=order.course_id,
-        teacher_id=course.teacher_id if course else current_user.id,
-        gross_amount=gross,
-        platform_commission_percent=platform_comm_percent,
-        platform_commission_amount=platform_comm_amount,
-        teacher_share_percent=teacher_share_percent,
-        teacher_amount=teacher_amount,
-        net_platform_amount=net_platform,
-        status="SETTLED",
-    )
-    db.add(rev_transaction)
-
-    # Update Teacher total earnings profile
-    if course:
-        stmt_t = select(TeacherProfile).where(TeacherProfile.user_id == course.teacher_id)
-        t_prof = (await db.execute(stmt_t)).scalar_one_or_none()
-        if t_prof:
-            current_earnings = Decimal(t_prof.total_earnings or "0.00")
-            t_prof.total_earnings = str(current_earnings + teacher_amount)
-
-    await db.commit()
-    await db.refresh(enrollment)
 
     return PaymentVerifyResponse(
         success=True,
@@ -207,20 +227,41 @@ async def verify_payment_and_enroll(
 
 @router.post("/webhook")
 async def razorpay_webhook_listener(request: Request, db: AsyncSession = Depends(get_db)):
-    """Receives Razorpay server-to-server webhook notifications for payment events."""
-    payload = await request.json()
+    """Receives Razorpay server-to-server webhook notifications with signature verification."""
+    body_bytes = await request.body()
+    signature = request.headers.get("X-Razorpay-Signature")
+
+    # Enforce HMAC signature check when webhook secret is configured
+    if settings.RAZORPAY_WEBHOOK_SECRET and settings.RAZORPAY_WEBHOOK_SECRET != "rzp_test_webhook_secret":
+        expected_sig = hmac.new(
+            settings.RAZORPAY_WEBHOOK_SECRET.encode(), body_bytes, hashlib.sha256
+        ).hexdigest()
+        if not signature or not hmac.compare_digest(expected_sig, signature):
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid Razorpay webhook signature"
+            )
+
+    import json
+    try:
+        payload = json.loads(body_bytes.decode())
+    except Exception:
+        raise HTTPException(status_code=400, detail="Malformed JSON payload")
+
     event = payload.get("event")
-    
     if event == "payment.captured":
         payment_entity = payload.get("payload", {}).get("payment", {}).get("entity", {})
         order_id = payment_entity.get("order_id")
         payment_id = payment_entity.get("id")
 
         if order_id:
-            stmt = select(Order).where(Order.gateway_order_id == order_id)
+            stmt = select(Order).options(selectinload(Order.course)).where(Order.gateway_order_id == order_id)
             order = (await db.execute(stmt)).scalar_one_or_none()
             if order and order.status != OrderStatusEnum.SUCCESS:
-                order.status = OrderStatusEnum.SUCCESS
-                await db.commit()
+                await _fulfill_successful_order(
+                    order=order,
+                    gateway_payment_id=payment_id or "pay_webhook_captured",
+                    gateway_signature=signature or "sig_webhook",
+                    db=db,
+                )
 
     return {"status": "ok"}

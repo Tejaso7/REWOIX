@@ -126,6 +126,30 @@ async def request_payout(
     current_user: User = Depends(require_roles([UserRoleEnum.TEACHER, UserRoleEnum.ADMIN])),
     db: AsyncSession = Depends(get_db),
 ):
+    if payout_in.amount <= Decimal("0.00"):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Payout amount must be greater than zero",
+        )
+
+    # Compute available balance (total teacher share minus paid and pending payouts)
+    stmt_txs = select(RevenueTransaction).where(RevenueTransaction.teacher_id == current_user.id)
+    txs = (await db.execute(stmt_txs)).scalars().all()
+    total_earned = sum([t.teacher_amount for t in txs], Decimal("0.00"))
+
+    stmt_payouts = select(func.sum(Payout.amount)).where(
+        Payout.teacher_id == current_user.id,
+        Payout.status.in_(["PAID", "PENDING"]),
+    )
+    disbursed_or_pending = (await db.execute(stmt_payouts)).scalar() or Decimal("0.00")
+    available_balance = max(Decimal("0.00"), total_earned - disbursed_or_pending)
+
+    if payout_in.amount > available_balance:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Requested payout amount (₹{payout_in.amount}) exceeds available balance (₹{available_balance})",
+        )
+
     payout = Payout(
         teacher_id=current_user.id,
         amount=payout_in.amount,
