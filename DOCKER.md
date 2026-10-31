@@ -218,22 +218,48 @@ The Docker stack automatically provisions standard test accounts:
 
 ## ☁ Cloud Production Deployment
 
-### 1. Reverse Proxy & SSL (Recommended)
-In front of the Docker stack, run Nginx, Traefik, or Caddy with Let's Encrypt for automatic HTTPS:
-```text
-https://rewoix.com        --> proxy_pass http://frontend:3000
-https://api.rewoix.com    --> proxy_pass http://backend:8000
+### 1. Isolated Production Stack (`docker-compose.prod.yml`)
+For production environments, launch the isolated multi-tier cluster with the integrated Nginx reverse proxy:
+
+```bash
+# 1. Copy production environment template
+cp .env.docker.example .env
+
+# 2. Launch production stack in detached mode
+docker compose -f docker-compose.prod.yml up -d --build
+
+# 3. Verify container health status
+docker compose -f docker-compose.prod.yml ps
 ```
 
-### 2. Managed Cloud Container Options
+In this production setup:
+- **Nginx Edge Ingress**: Only ports `80` (and `443` for SSL) are exposed to the public internet.
+- **Network Isolation**: PostgreSQL (`5432`) and Redis (`6379`) are strictly quarantined inside the `rewoix_prod_network` bridge, eliminating external attack vectors.
+- **Resource Constraints**: CPU and RAM allocations are capped with strict limits to prevent memory exhaustion crashes.
+- **Log Management**: Containers use Docker's `json-file` log driver with `max-size: 20m` and `max-file: 5` rotation.
+
+### 2. Reverse Proxy & SSL (Nginx / Let's Encrypt)
+The built-in Nginx container (`nginx/conf.d/rewoix.conf`) handles reverse proxying automatically:
+```text
+http://your-domain.com/api/        --> proxy_pass http://backend:8000
+http://your-domain.com/docs        --> proxy_pass http://backend:8000
+http://your-domain.com/            --> proxy_pass http://frontend:3000
+```
+
+To enable SSL certificates with Certbot:
+```bash
+# Install Certbot and request certificates
+certbot certonly --webroot -w /var/www/certbot -d your-domain.com -d api.your-domain.com
+```
+
+### 3. Managed Cloud Container Options
 - **AWS ECS / Fargate**: Deploy `Dockerfile.backend` and `Dockerfile.frontend` as separate task definitions behind an Application Load Balancer (ALB), with Amazon Aurora PostgreSQL and ElastiCache Redis.
 - **Google Cloud Run**: Build images with Google Cloud Build and deploy serverless containers.
 - **DigitalOcean App Platform**: Point to the GitHub repository, deploy backend service and frontend static/Node service.
 - **Single VPS (Ubuntu / Debian on Hetzner or AWS EC2)**:
-  1. Install Docker & Docker Compose.
+  1. Install Docker & Docker Compose (`apt-get install docker.io docker-compose-plugin`).
   2. Clone repo & set `.env` with strong passwords.
-  3. Run `docker compose up -d`.
-  4. Attach Caddy or Nginx reverse proxy with SSL.
+  3. Run `docker compose -f docker-compose.prod.yml up -d`.
 
 ---
 
