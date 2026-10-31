@@ -119,7 +119,7 @@ export default function PendingCoursesPage() {
                   )}
                 </div>
 
-                <div className="flex items-center gap-3 shrink-0">
+                <div className="flex flex-wrap sm:flex-nowrap items-center gap-3 shrink-0">
                   <button
                     onClick={() => handleApprove(course.id)}
                     className="gradient-button px-5 py-2.5 rounded-xl font-bold text-white text-xs flex items-center gap-1.5 shadow-md hover:scale-[1.02] transition-transform"

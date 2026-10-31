@@ -223,7 +223,7 @@ export default function Navbar() {
 
               {/* Dropdown Menu */}
               {showNotifDropdown && (
-                <div className="absolute right-0 mt-2 w-80 sm:w-96 glass-card rounded-2xl shadow-2xl border border-slate-200 dark:border-white/10 z-50 overflow-hidden text-xs">
+                <div className="absolute right-0 mt-2 w-80 sm:w-96 max-w-[calc(100vw-1.5rem)] glass-card rounded-2xl shadow-2xl border border-slate-200 dark:border-white/10 z-50 overflow-hidden text-xs">
                   {/* Header */}
                   <div className="p-3.5 border-b border-slate-200 dark:border-white/10 flex items-center justify-between bg-slate-50 dark:bg-slate-900/60">
                     <div className="flex items-center gap-2">

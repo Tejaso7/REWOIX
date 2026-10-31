@@ -142,7 +142,7 @@ export default function InteractivePlayerPage() {
   return (
     <div className="min-h-screen flex flex-col md:flex-row bg-[#080B11] text-slate-100">
       {/* Main Simulation / Media Panel */}
-      <div className="flex-1 flex flex-col h-screen overflow-y-auto">
+      <div className="flex-1 flex flex-col min-h-0 md:h-screen overflow-y-auto">
         {/* Top Navbar Header */}
         <header className="px-6 py-3.5 border-b border-white/10 bg-[#0B0F17]/90 backdrop-blur sticky top-0 z-30 flex items-center justify-between">
           <div className="flex items-center gap-3">
@@ -185,12 +185,12 @@ export default function InteractivePlayerPage() {
         </header>
 
         {/* Content Body */}
-        <div className="p-6 space-y-6 flex-1">
+        <div className="p-4 sm:p-6 space-y-6 flex-1">
           {/* Workspace Tab Switcher */}
-          <div className="flex items-center gap-2 border-b border-white/10 pb-2">
+          <div className="flex items-center gap-2 border-b border-white/10 pb-2 overflow-x-auto scrollbar-none">
             <button
               onClick={() => setActiveTab('video')}
-              className={`px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-2 transition-all ${
+              className={`px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-2 shrink-0 transition-all ${
                 activeTab === 'video'
                   ? 'bg-blue-600 text-white shadow-md shadow-blue-500/20'
                   : 'text-slate-400 hover:text-white hover:bg-white/5'
@@ -200,7 +200,7 @@ export default function InteractivePlayerPage() {
             </button>
             <button
               onClick={() => setActiveTab('simulation')}
-              className={`px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-2 transition-all ${
+              className={`px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-2 shrink-0 transition-all ${
                 activeTab === 'simulation'
                   ? 'bg-blue-600 text-white shadow-md shadow-blue-500/20'
                   : 'text-slate-400 hover:text-white hover:bg-white/5'
@@ -210,7 +210,7 @@ export default function InteractivePlayerPage() {
             </button>
             <button
               onClick={() => setActiveTab('notes')}
-              className={`px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-2 transition-all ${
+              className={`px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-2 shrink-0 transition-all ${
                 activeTab === 'notes'
                   ? 'bg-blue-600 text-white shadow-md shadow-blue-500/20'
                   : 'text-slate-400 hover:text-white hover:bg-white/5'
@@ -380,7 +380,7 @@ export default function InteractivePlayerPage() {
       </div>
 
       {/* Curriculum Sidebar */}
-      <div className="w-full md:w-96 glass-card border-l border-white/10 p-6 space-y-6 flex flex-col h-auto md:h-screen overflow-y-auto bg-[#0B0F17]">
+      <div className="w-full md:w-96 glass-card border-t md:border-t-0 md:border-l border-white/10 p-6 space-y-6 flex flex-col h-auto md:h-screen overflow-y-auto bg-[#0B0F17]">
         <div className="space-y-1">
           <h2 className="text-base font-black text-white">Workplace Curriculum</h2>
           <p className="text-xs text-slate-400">{playerData.sections?.length || 0} stages • Interactive milestones</p>

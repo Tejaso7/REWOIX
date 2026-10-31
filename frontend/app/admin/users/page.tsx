@@ -185,17 +185,17 @@ export default function AdminUsersPage() {
             {selectedUser.teacher_profile && (
               <div className="space-y-4 text-xs text-slate-700 dark:text-slate-300">
                 <h4 className="font-bold text-slate-900 dark:text-white uppercase tracking-wider text-[11px] text-purple-600 dark:text-purple-400">Working Professional Credentials</h4>
-                <div className="grid grid-cols-2 gap-3 bg-slate-50 dark:bg-slate-800/50 p-4 rounded-xl">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 bg-slate-50 dark:bg-slate-800/50 p-4 rounded-xl">
                   <div><span className="text-slate-400">Company:</span> <strong className="text-slate-900 dark:text-white">{selectedUser.teacher_profile.company_name || 'N/A'}</strong></div>
                   <div><span className="text-slate-400">Domain:</span> <strong className="text-slate-900 dark:text-white">{selectedUser.teacher_profile.domain_expertise || 'N/A'}</strong></div>
                   <div><span className="text-slate-400">CTC Bracket:</span> <strong className="text-slate-900 dark:text-white">{selectedUser.teacher_profile.ctc_bracket || 'N/A'}</strong></div>
                   <div><span className="text-slate-400">Experience:</span> <strong className="text-slate-900 dark:text-white">{selectedUser.teacher_profile.experience_years || 'N/A'}</strong></div>
-                  <div className="col-span-2"><span className="text-slate-400">LinkedIn:</span> <a href={selectedUser.teacher_profile.linkedin_url} target="_blank" rel="noreferrer" className="text-blue-500 hover:underline">{selectedUser.teacher_profile.linkedin_url || 'N/A'}</a></div>
-                  <div className="col-span-2"><span className="text-slate-400">GitHub:</span> <a href={selectedUser.teacher_profile.github_url} target="_blank" rel="noreferrer" className="text-blue-500 hover:underline">{selectedUser.teacher_profile.github_url || 'N/A'}</a></div>
+                  <div className="sm:col-span-2 break-all"><span className="text-slate-400">LinkedIn:</span> <a href={selectedUser.teacher_profile.linkedin_url} target="_blank" rel="noreferrer" className="text-blue-500 hover:underline">{selectedUser.teacher_profile.linkedin_url || 'N/A'}</a></div>
+                  <div className="sm:col-span-2 break-all"><span className="text-slate-400">GitHub:</span> <a href={selectedUser.teacher_profile.github_url} target="_blank" rel="noreferrer" className="text-blue-500 hover:underline">{selectedUser.teacher_profile.github_url || 'N/A'}</a></div>
                 </div>
 
                 <h4 className="font-bold text-slate-900 dark:text-white uppercase tracking-wider text-[11px] text-emerald-600 dark:text-emerald-400">Verified Bank & Payout Information</h4>
-                <div className="grid grid-cols-2 gap-3 bg-slate-50 dark:bg-slate-800/50 p-4 rounded-xl">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 bg-slate-50 dark:bg-slate-800/50 p-4 rounded-xl">
                   <div><span className="text-slate-400">Account Holder:</span> <strong className="text-slate-900 dark:text-white">{selectedUser.teacher_profile.account_holder_name || 'N/A'}</strong></div>
                   <div><span className="text-slate-400">Bank Name:</span> <strong className="text-slate-900 dark:text-white">{selectedUser.teacher_profile.bank_name || 'N/A'}</strong></div>
                   <div><span className="text-slate-400">Account Number:</span> <strong className="text-slate-900 dark:text-white">{selectedUser.teacher_profile.account_number || 'N/A'}</strong></div>
@@ -209,7 +209,7 @@ export default function AdminUsersPage() {
             {selectedUser.learner_profile && (
               <div className="space-y-4 text-xs text-slate-700 dark:text-slate-300">
                 <h4 className="font-bold text-slate-900 dark:text-white uppercase tracking-wider text-[11px] text-blue-600 dark:text-blue-400">Student & Learner Background</h4>
-                <div className="grid grid-cols-2 gap-3 bg-slate-50 dark:bg-slate-800/50 p-4 rounded-xl">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 bg-slate-50 dark:bg-slate-800/50 p-4 rounded-xl">
                   <div><span className="text-slate-400">Archetype:</span> <strong className="text-slate-900 dark:text-white">{selectedUser.learner_profile.user_type || 'STUDENT'}</strong></div>
                   <div><span className="text-slate-400">Institution/Company:</span> <strong className="text-slate-900 dark:text-white">{selectedUser.learner_profile.institution_or_company || 'N/A'}</strong></div>
                   <div><span className="text-slate-400">Field/Role:</span> <strong className="text-slate-900 dark:text-white">{selectedUser.learner_profile.field_of_study_or_role || 'N/A'}</strong></div>
@@ -234,7 +234,7 @@ export default function AdminUsersPage() {
                   </div>
                 )}
 
-                <div className="flex items-center gap-3">
+                <div className="flex flex-wrap sm:flex-nowrap items-center gap-3">
                   <input
                     type="number"
                     min="0"
@@ -242,13 +242,13 @@ export default function AdminUsersPage() {
                     step="0.5"
                     value={newCommission}
                     onChange={(e) => setNewCommission(parseFloat(e.target.value))}
-                    className="w-32 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl px-3 py-2 text-xs font-bold text-slate-900 dark:text-white focus:outline-none"
+                    className="w-28 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl px-3 py-2 text-xs font-bold text-slate-900 dark:text-white focus:outline-none"
                   />
-                  <span className="text-xs text-slate-500">% Teacher Share</span>
+                  <span className="text-xs text-slate-500 whitespace-nowrap">% Teacher Share</span>
                   <button
                     onClick={handleUpdateCommission}
                     disabled={savingComm}
-                    className="gradient-button px-4 py-2 text-xs font-bold text-white rounded-xl shadow-md"
+                    className="gradient-button px-4 py-2 text-xs font-bold text-white rounded-xl shadow-md whitespace-nowrap"
                   >
                     {savingComm ? 'Updating...' : 'Save Commission Split'}
                   </button>

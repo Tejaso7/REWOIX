@@ -254,36 +254,38 @@ export default function WorkspaceSimulation() {
                 <span>Query Result • 3 rows returned in 12ms</span>
                 <span className="text-emerald-500 font-mono text-[10px]">Status: 200 OK</span>
               </div>
-              <table className="w-full text-left font-mono text-[11px]">
-                <thead className="border-b border-slate-200 dark:border-white/10 text-slate-500 dark:text-slate-400">
-                  <tr>
-                    <th className="px-4 py-2 font-semibold">failure_root_cause</th>
-                    <th className="px-4 py-2 font-semibold">impacted_accounts</th>
-                    <th className="px-4 py-2 font-semibold">arr_at_risk</th>
-                    <th className="px-4 py-2 font-semibold text-right">diagnosis</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-200 dark:divide-white/5">
-                  <tr className="bg-red-500/5">
-                    <td className="px-4 py-2 font-bold text-red-500">RETRY_TIMEOUT_SEPA</td>
-                    <td className="px-4 py-2 text-slate-900 dark:text-white">412</td>
-                    <td className="px-4 py-2 font-bold text-slate-900 dark:text-white">$1,842,500</td>
-                    <td className="px-4 py-2 text-right text-red-400 font-sans font-semibold">Root Cause (81% of churn)</td>
-                  </tr>
-                  <tr>
-                    <td className="px-4 py-2 text-slate-600 dark:text-slate-400">INSUFFICIENT_FUNDS</td>
-                    <td className="px-4 py-2 text-slate-900 dark:text-white">89</td>
-                    <td className="px-4 py-2 text-slate-900 dark:text-white">$310,000</td>
-                    <td className="px-4 py-2 text-right text-slate-400 font-sans">Normal Baseline (13%)</td>
-                  </tr>
-                  <tr>
-                    <td className="px-4 py-2 text-slate-600 dark:text-slate-400">EXPIRED_TOKEN</td>
-                    <td className="px-4 py-2 text-slate-900 dark:text-white">45</td>
-                    <td className="px-4 py-2 text-slate-900 dark:text-white">$142,000</td>
-                    <td className="px-4 py-2 text-right text-slate-400 font-sans">Normal Baseline (6%)</td>
-                  </tr>
-                </tbody>
-              </table>
+              <div className="overflow-x-auto">
+                <table className="w-full text-left font-mono text-[11px] min-w-[500px]">
+                  <thead className="border-b border-slate-200 dark:border-white/10 text-slate-500 dark:text-slate-400">
+                    <tr>
+                      <th className="px-4 py-2 font-semibold">failure_root_cause</th>
+                      <th className="px-4 py-2 font-semibold">impacted_accounts</th>
+                      <th className="px-4 py-2 font-semibold">arr_at_risk</th>
+                      <th className="px-4 py-2 font-semibold text-right">diagnosis</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-200 dark:divide-white/5">
+                    <tr className="bg-red-500/5">
+                      <td className="px-4 py-2 font-bold text-red-500">RETRY_TIMEOUT_SEPA</td>
+                      <td className="px-4 py-2 text-slate-900 dark:text-white">412</td>
+                      <td className="px-4 py-2 font-bold text-slate-900 dark:text-white">$1,842,500</td>
+                      <td className="px-4 py-2 text-right text-red-400 font-sans font-semibold">Root Cause (81% of churn)</td>
+                    </tr>
+                    <tr>
+                      <td className="px-4 py-2 text-slate-600 dark:text-slate-400">INSUFFICIENT_FUNDS</td>
+                      <td className="px-4 py-2 text-slate-900 dark:text-white">89</td>
+                      <td className="px-4 py-2 text-slate-900 dark:text-white">$310,000</td>
+                      <td className="px-4 py-2 text-right text-slate-400 font-sans">Normal Baseline (13%)</td>
+                    </tr>
+                    <tr>
+                      <td className="px-4 py-2 text-slate-600 dark:text-slate-400">EXPIRED_TOKEN</td>
+                      <td className="px-4 py-2 text-slate-900 dark:text-white">45</td>
+                      <td className="px-4 py-2 text-slate-900 dark:text-white">$142,000</td>
+                      <td className="px-4 py-2 text-right text-slate-400 font-sans">Normal Baseline (6%)</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
             </div>
           </div>
         )}

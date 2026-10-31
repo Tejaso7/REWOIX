@@ -73,12 +73,24 @@ body {
 }
 
 .secondary-button {
-  background: rgba(30, 41, 59, 0.6);
-  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: #ffffff;
+  color: #1e293b;
+  border: 1px solid rgba(0, 0, 0, 0.12);
   transition: all 0.2s ease;
 }
 
 .secondary-button:hover {
+  background: #f1f5f9;
+  border-color: rgba(59, 130, 246, 0.4);
+}
+
+.dark .secondary-button {
+  background: rgba(30, 41, 59, 0.6);
+  color: #f8fafc;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.dark .secondary-button:hover {
   background: rgba(30, 41, 59, 0.9);
   border-color: rgba(0, 210, 255, 0.4);
 }

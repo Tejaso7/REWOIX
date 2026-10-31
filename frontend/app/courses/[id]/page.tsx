@@ -293,7 +293,7 @@ export default function CourseDetailPage() {
       )}
 
       {/* Hero Header Banner */}
-      <div className="relative border-b border-slate-200/80 dark:border-white/10 bg-slate-900/40 py-14 px-6 overflow-hidden">
+      <div className="relative border-b border-slate-200/80 dark:border-white/10 bg-slate-100/60 dark:bg-slate-900/40 py-14 px-6 overflow-hidden">
         <div className="absolute top-0 right-1/4 w-96 h-96 bg-blue-600/10 rounded-full blur-3xl pointer-events-none" />
         <div className="absolute bottom-0 left-10 w-80 h-80 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none" />
 
@@ -344,31 +344,31 @@ export default function CourseDetailPage() {
             </div>
 
             {/* Instructor Summary Card */}
-            <div className="glass-card p-4 rounded-2xl flex items-center justify-between gap-4 border border-white/10 max-w-xl">
+            <div className="glass-card p-4 rounded-2xl flex items-center justify-between gap-4 border border-slate-200 dark:border-white/10 max-w-xl">
               <div className="flex items-center gap-3">
                 <div className="w-12 h-12 rounded-xl gradient-button flex items-center justify-center font-black text-white text-base shadow-md">
                   {course.teacher_name ? course.teacher_name.charAt(0) : 'R'}
                 </div>
                 <div>
-                  <div className="text-xs text-slate-400 font-medium">Simulation Lead & Instructor</div>
+                  <div className="text-xs text-slate-500 dark:text-slate-400 font-medium">Simulation Lead & Instructor</div>
                   <div className="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2">
                     {course.teacher_name || 'Senior Analytics Architect'}
-                    <span className="text-[10px] bg-blue-500/10 text-cyan-400 px-2 py-0.5 rounded border border-blue-500/20">
+                    <span className="text-[10px] bg-blue-500/10 text-blue-600 dark:text-cyan-400 px-2 py-0.5 rounded border border-blue-500/20">
                       Industry Practitioner
                     </span>
                   </div>
                 </div>
               </div>
               <div className="text-right">
-                <span className="text-[11px] text-slate-400 flex items-center gap-1">
-                  <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" /> Vetted Industry Mentor
+                <span className="text-[11px] text-slate-500 dark:text-slate-400 flex items-center gap-1">
+                  <ShieldCheck className="w-3.5 h-3.5 text-emerald-500" /> Vetted Industry Mentor
                 </span>
               </div>
             </div>
           </div>
 
           {/* Right Sticky Checkout Sidebar */}
-          <div className="lg:sticky lg:top-24 glass-card p-6 rounded-3xl border border-white/10 shadow-2xl space-y-6 bg-slate-900/90 backdrop-blur-xl">
+          <div className="lg:sticky lg:top-24 glass-card p-6 rounded-3xl border border-slate-200 dark:border-white/10 shadow-2xl space-y-6 bg-white/95 dark:bg-slate-900/90 backdrop-blur-xl">
             {!imgError && course.thumbnail_url ? (
               <div 
                 onClick={() => setPreviewVideoUrl(previewSampleUrl)}
