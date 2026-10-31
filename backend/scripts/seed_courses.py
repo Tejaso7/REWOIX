@@ -315,7 +315,392 @@ COURSES_DATA = [
                 ]
             }
         ]
-    }
+    },
+    {
+        "title": "Uber Dynamic Surge Pricing & Geospatial Matching Simulator",
+        "slug": "uber-dynamic-surge-pricing-simulator",
+        "subtitle": "Engineer Uber's real-time geospatial demand-supply algorithmic surge pricing and driver dispatch engine using H3 hex bins and Redis.",
+        "description": "Step into the role of a Senior Distributed Systems Engineer at Uber. You will build and optimize the core real-time mobility dispatch system: partitioning urban geography using Uber's H3 spatial indexing, computing live supply-demand elasticity ratios across hexagonal bins, dispatching nearest available drivers with O(1) Redis geospatial queries, and preventing surge price oscillations with moving averages and rate limits.",
+        "category_name": "Corporate Experience Simulators",
+        "price": Decimal("3999.00"),
+        "discount_price": Decimal("2499.00"),
+        "level": CourseLevelEnum.ADVANCED,
+        "is_featured": True,
+        "average_rating": 4.97,
+        "review_count": 320,
+        "total_learners": 1850,
+        "thumbnail_url": "https://images.unsplash.com/photo-1519641471654-76ce0107ad1b?w=800&q=80",
+        "sections": [
+            {
+                "title": "Geospatial Indexing & H3 Urban Grid",
+                "lessons": [
+                    {
+                        "title": "Uber H3 Spatial Hexagonal Binning",
+                        "video_url": "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4",
+                        "duration": 650,
+                        "is_preview": True,
+                    },
+                    {
+                        "title": "Ingesting Real-Time Driver GPS Telemetry",
+                        "video_url": "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4",
+                        "duration": 780,
+                        "is_preview": True,
+                    },
+                ],
+            },
+            {
+                "title": "Surge Multiplier Algorithmic Engine",
+                "lessons": [
+                    {
+                        "title": "Calculating Dynamic Elasticity & Surge Multipliers",
+                        "video_url": "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4",
+                        "duration": 890,
+                        "is_preview": False,
+                    },
+                    {
+                        "title": "High-Throughput Driver Dispatch with Redis Geo",
+                        "video_url": "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoylikes.mp4",
+                        "duration": 940,
+                        "is_preview": False,
+                        "quiz": {
+                            "title": "Uber Surge & Geospatial Architecture Check",
+                            "passing_score_percent": 75.0,
+                            "questions": [
+                                {
+                                    "question_text": "Why does Uber use hexagonal (H3) cells instead of square grids for spatial partitioning?",
+                                    "explanation": "Hexagons have the property that all 6 adjacent neighbors are equidistant from the center cell, preventing corner diagonal distortion found in square grids.",
+                                    "options": [
+                                        {"option_text": "Hexagons have equidistant neighbors with continuous adjacent boundaries, eliminating corner bias artifacts", "is_correct": True},
+                                        {"option_text": "Hexagonal geometry compresses coordinates into fewer raw bytes than rectangles", "is_correct": False},
+                                        {"option_text": "Square grids cannot support GPS coordinate transformations", "is_correct": False},
+                                        {"option_text": "Hexagons require 50% fewer CPU cycles to calculate trigonometric sine", "is_correct": False},
+                                    ],
+                                },
+                                {
+                                    "question_text": "What is the primary function of an exponential moving average (EMA) in Uber surge pricing calculations?",
+                                    "explanation": "EMA dampens short-lived variance, avoiding jarring price fluctuations for riders between consecutive minutes.",
+                                    "options": [
+                                        {"option_text": "To smooth abrupt pricing oscillations caused by instantaneous spikes in ride requests", "is_correct": True},
+                                        {"option_text": "To decrease driver payout commissions during non-peak hours", "is_correct": False},
+                                        {"option_text": "To compress geo-telemetry payloads before saving to Cold Storage", "is_correct": False},
+                                        {"option_text": "To compute driver tax deductions automatically", "is_correct": False},
+                                    ],
+                                },
+                            ],
+                        },
+                    },
+                ],
+            },
+        ],
+    },
+    {
+        "title": "Airbnb Geospatial Search & Concurrency Reservation Simulator",
+        "slug": "airbnb-geospatial-reservation-simulator",
+        "subtitle": "Design Airbnb's listing search, geo-bounding box filtering, instant booking double-booking concurrency lock, and pricing pipeline.",
+        "description": "Experience building Airbnb's critical reservation and discovery infrastructure. In this simulator, you will implement PostgreSQL PostGIS bounding box queries for fluid map pan-and-zoom discovery, engineer atomic double-booking prevention using PostgreSQL row-level locking (SELECT FOR UPDATE) and Redis distributed locks (Redlock), and calculate multi-currency tax, host payout splits, and cleaning fees.",
+        "category_name": "Corporate Experience Simulators",
+        "price": Decimal("3499.00"),
+        "discount_price": Decimal("2199.00"),
+        "level": CourseLevelEnum.INTERMEDIATE,
+        "is_featured": True,
+        "average_rating": 4.92,
+        "review_count": 275,
+        "total_learners": 1420,
+        "thumbnail_url": "https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=800&q=80",
+        "sections": [
+            {
+                "title": "PostGIS Map Search & Bounding Boxes",
+                "lessons": [
+                    {
+                        "title": "Spatial Polygon Indexing for Map Browsing",
+                        "video_url": "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerMeltdowns.mp4",
+                        "duration": 620,
+                        "is_preview": True,
+                    },
+                    {
+                        "title": "Dynamic Pricing Rules & Seasonal Surges",
+                        "video_url": "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/Sintel.mp4",
+                        "duration": 740,
+                        "is_preview": True,
+                    },
+                ],
+            },
+            {
+                "title": "Concurrency & Instant Booking Engine",
+                "lessons": [
+                    {
+                        "title": "Preventing Double-Bookings with Atomic Database Locks",
+                        "video_url": "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/SubaruOutbackOnTheLoose.mp4",
+                        "duration": 880,
+                        "is_preview": False,
+                    },
+                    {
+                        "title": "Host Payout Ledger & Stripe Payment Intent Webhooks",
+                        "video_url": "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/TearsOfSteel.mp4",
+                        "duration": 910,
+                        "is_preview": False,
+                        "quiz": {
+                            "title": "Airbnb Concurrency & Booking Integrity Check",
+                            "passing_score_percent": 75.0,
+                            "questions": [
+                                {
+                                    "question_text": "How does Airbnb prevent two simultaneous guests from reserving the same property on identical dates?",
+                                    "explanation": "SELECT FOR UPDATE locks the calendar date interval rows atomically, forcing competing transactions to block or abort.",
+                                    "options": [
+                                        {"option_text": "Pessimistic row-level locking (SELECT FOR UPDATE) on the calendar dates within an atomic serializable transaction", "is_correct": True},
+                                        {"option_text": "Client-side browser localStorage locking mechanisms", "is_correct": False},
+                                        {"option_text": "Relying on eventual consistency in a NoSQL database", "is_correct": False},
+                                        {"option_text": "Refunding the second guest 24 hours after checkout", "is_correct": False},
+                                    ],
+                                },
+                                {
+                                    "question_text": "Which PostGIS operator is optimized for testing if a property latitude/longitude falls within a map viewport bounding box?",
+                                    "explanation": "The && operator uses PostGIS GiST spatial R-tree indexing to test bounding box overlaps in logarithmic time.",
+                                    "options": [
+                                        {"option_text": "ST_MakeEnvelope and && (bounding box overlap operator)", "is_correct": True},
+                                        {"option_text": "ST_Buffer and ST_Union", "is_correct": False},
+                                        {"option_text": "LIKE '%coordinates%'", "is_correct": False},
+                                        {"option_text": "ST_Length and ST_Perimeter", "is_correct": False},
+                                    ],
+                                },
+                            ],
+                        },
+                    },
+                ],
+            },
+        ],
+    },
+    {
+        "title": "Netflix Distributed Video Encoding & Transcoding Pipeline",
+        "slug": "netflix-video-transcoding-pipeline-simulator",
+        "subtitle": "Build Netflix's distributed chunked video encoding pipeline with FFmpeg, AWS S3 multipart uploads, and event-driven SQS workers.",
+        "description": "Simulate the role of a Streaming Infrastructure Engineer at Netflix. Architect a fault-tolerant, horizontal video processing fleet: splitting raw 4K camera footage into time-aligned 5-second GOP chunks, distributing parallel encoding jobs across stateless workers to render H.264/HEVC/AV1 at multiple bitrates, generating master HLS/DASH manifest files (.m3u8), and orchestrating automated fallback retries upon node failure.",
+        "category_name": "Corporate Experience Simulators",
+        "price": Decimal("3799.00"),
+        "discount_price": Decimal("2399.00"),
+        "level": CourseLevelEnum.ADVANCED,
+        "is_featured": True,
+        "average_rating": 4.95,
+        "review_count": 198,
+        "total_learners": 1180,
+        "thumbnail_url": "https://images.unsplash.com/photo-1574375927938-d5a98e8ffe85?w=800&q=80",
+        "sections": [
+            {
+                "title": "Video Chunking & Parallelization",
+                "lessons": [
+                    {
+                        "title": "GOP Alignment & Chunked Media Ingestion",
+                        "video_url": "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/WeAreGoingOnBullrun.mp4",
+                        "duration": 670,
+                        "is_preview": True,
+                    },
+                    {
+                        "title": "FFmpeg Multi-Bitrate Ladder Encoding",
+                        "video_url": "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/WhatCarCanYouGetForAGrand.mp4",
+                        "duration": 820,
+                        "is_preview": True,
+                    },
+                ],
+            },
+            {
+                "title": "Manifest Generation & Adaptive Bitrate Streaming",
+                "lessons": [
+                    {
+                        "title": "Assembling Dynamic HLS & DASH Master Manifests",
+                        "video_url": "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4",
+                        "duration": 860,
+                        "is_preview": False,
+                    },
+                    {
+                        "title": "Worker Orchestration & Dead-Letter Queue Handling",
+                        "video_url": "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4",
+                        "duration": 930,
+                        "is_preview": False,
+                        "quiz": {
+                            "title": "Netflix Video Pipeline & HLS Encoding Check",
+                            "passing_score_percent": 75.0,
+                            "questions": [
+                                {
+                                    "question_text": "Why must chunked video segments align strictly on Group of Pictures (GOP) keyframe boundaries?",
+                                    "explanation": "Keyframe alignment ensures clients can instantly switch bitrates mid-stream without decoding corrupted P/B frame references.",
+                                    "options": [
+                                        {"option_text": "To ensure seamless playback switching across different bitrate streams without visual glitches", "is_correct": True},
+                                        {"option_text": "To decrease audio channel frequencies", "is_correct": False},
+                                        {"option_text": "Because MP4 containers reject uncompressed frames", "is_correct": False},
+                                        {"option_text": "To encrypt DRM licenses automatically", "is_correct": False},
+                                    ],
+                                },
+                                {
+                                    "question_text": "What is the purpose of an SQS Dead-Letter Queue (DLQ) in Netflix's transcoding fleet?",
+                                    "explanation": "A DLQ captures poison-pill inputs that repeatedly exceed max receive counts, allowing debugging without halting the main queue.",
+                                    "options": [
+                                        {"option_text": "To isolate corrupted video chunks that repeatedly fail encoding and prevent fleet-wide worker poisoning", "is_correct": True},
+                                        {"option_text": "To store expired user passwords", "is_correct": False},
+                                        {"option_text": "To cache video thumbnails on edge CDN nodes", "is_correct": False},
+                                        {"option_text": "To reduce S3 storage pricing tier costs", "is_correct": False},
+                                    ],
+                                },
+                            ],
+                        },
+                    },
+                ],
+            },
+        ],
+    },
+    {
+        "title": "Zerodha High-Frequency Order Matching & Ledger Simulator",
+        "slug": "zerodha-order-matching-engine-simulator",
+        "subtitle": "Construct a low-latency price-time priority L3 limit order book with WebSocket ticker feeds and ACID ledger balancing.",
+        "description": "Step into the shoes of a Quantitative Infrastructure Architect at Zerodha. Build a ultra-low latency exchange matching engine capable of executing limit and market orders using a Price-Time Priority (FIFO) algorithm, broadcasting real-time market depth (Level 2 / Level 3 order books) over WebSockets, performing instant pre-trade margin and risk checks, and maintaining double-entry financial accounting ledgers.",
+        "category_name": "Corporate Experience Simulators",
+        "price": Decimal("4499.00"),
+        "discount_price": Decimal("2999.00"),
+        "level": CourseLevelEnum.ADVANCED,
+        "is_featured": True,
+        "average_rating": 4.98,
+        "review_count": 410,
+        "total_learners": 2300,
+        "thumbnail_url": "https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=800&q=80",
+        "sections": [
+            {
+                "title": "Limit Order Book (LOB) Architecture",
+                "lessons": [
+                    {
+                        "title": "Price-Time Priority (FIFO) Matching Engine",
+                        "video_url": "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4",
+                        "duration": 780,
+                        "is_preview": True,
+                    },
+                    {
+                        "title": "Market Depth & Level 3 WebSocket Streaming",
+                        "video_url": "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoylikes.mp4",
+                        "duration": 840,
+                        "is_preview": True,
+                    },
+                ],
+            },
+            {
+                "title": "Risk Management & Ledger Settlement",
+                "lessons": [
+                    {
+                        "title": "Pre-Trade Margin Verification & Circuit Breakers",
+                        "video_url": "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerMeltdowns.mp4",
+                        "duration": 910,
+                        "is_preview": False,
+                    },
+                    {
+                        "title": "Double-Entry Financial Reconciliation Ledger",
+                        "video_url": "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/Sintel.mp4",
+                        "duration": 960,
+                        "is_preview": False,
+                        "quiz": {
+                            "title": "Zerodha Matching Engine & Trading Architecture Check",
+                            "passing_score_percent": 80.0,
+                            "questions": [
+                                {
+                                    "question_text": "In a Price-Time Priority (FIFO) Limit Order Book, how are resting buy orders prioritized for incoming market sell orders?",
+                                    "explanation": "Price-Time Priority prioritizes the best bid (highest price), breaking ties by arrival sequence (earliest timestamp).",
+                                    "options": [
+                                        {"option_text": "Highest price first; if prices match, the earliest timestamp executes first", "is_correct": True},
+                                        {"option_text": "Lowest price first, regardless of timestamp", "is_correct": False},
+                                        {"option_text": "Largest order volume first to minimize trade count", "is_correct": False},
+                                        {"option_text": "Random round-robin distribution among brokers", "is_correct": False},
+                                    ],
+                                },
+                                {
+                                    "question_text": "Why is double-entry bookkeeping required for financial brokerages like Zerodha?",
+                                    "explanation": "Double-entry bookkeeping ensures zero financial leakage by requiring that debits always balance credits across every trade.",
+                                    "options": [
+                                        {"option_text": "Every financial event creates matching debit and credit entries, guaranteeing mathematically that assets equal liabilities plus equity", "is_correct": True},
+                                        {"option_text": "It doubles the execution speed of database write operations", "is_correct": False},
+                                        {"option_text": "It bypasses SEBI regulatory reporting requirements", "is_correct": False},
+                                        {"option_text": "It eliminates the need for database index structures", "is_correct": False},
+                                    ],
+                                },
+                            ],
+                        },
+                    },
+                ],
+            },
+        ],
+    },
+    {
+        "title": "Swiggy Hyperlocal Delivery Routing & Fleet Dispatch Simulator",
+        "slug": "swiggy-fleet-routing-dispatch-simulator",
+        "subtitle": "Implement multi-order batching, traveling salesperson routing, rider dispatch assignment, and live ETA tracking.",
+        "description": "Experience the logistical complexity of India's leading on-demand food delivery network. You will engineer Swiggy's fleet optimization engine: bundling multiple orders from adjacent restaurants to maximize rider efficiency, computing optimal pickup-dropoff sequences with Traveling Salesperson Problem (TSP) heuristics, predicting real-time kitchen preparation vs. traffic arrival ETAs, and broadcasting live rider GPS pings to customer apps.",
+        "category_name": "Corporate Experience Simulators",
+        "price": Decimal("3299.00"),
+        "discount_price": Decimal("1999.00"),
+        "level": CourseLevelEnum.INTERMEDIATE,
+        "is_featured": True,
+        "average_rating": 4.91,
+        "review_count": 240,
+        "total_learners": 1350,
+        "thumbnail_url": "https://images.unsplash.com/photo-1526367790999-0150786686a2?w=800&q=80",
+        "sections": [
+            {
+                "title": "Multi-Order Batching & Routing",
+                "lessons": [
+                    {
+                        "title": "Restaurant Clustering & Order Bundling Heuristics",
+                        "video_url": "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/SubaruOutbackOnTheLoose.mp4",
+                        "duration": 640,
+                        "is_preview": True,
+                    },
+                    {
+                        "title": "Solving Pickup-Dropoff Sequences with TSP",
+                        "video_url": "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/TearsOfSteel.mp4",
+                        "duration": 810,
+                        "is_preview": True,
+                    },
+                ],
+            },
+            {
+                "title": "Real-Time Dispatch & Dynamic ETAs",
+                "lessons": [
+                    {
+                        "title": "Rider Matchmaking & Surge Capacity Allocation",
+                        "video_url": "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/WeAreGoingOnBullrun.mp4",
+                        "duration": 870,
+                        "is_preview": False,
+                    },
+                    {
+                        "title": "Live Telemetry Ingestion & Real-Time ETA Machine Learning",
+                        "video_url": "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/WhatCarCanYouGetForAGrand.mp4",
+                        "duration": 920,
+                        "is_preview": False,
+                        "quiz": {
+                            "title": "Swiggy Hyperlocal Logistics & Routing Check",
+                            "passing_score_percent": 75.0,
+                            "questions": [
+                                {
+                                    "question_text": "When bundling 2 food delivery orders for a single delivery partner, which constraint is most critical to avoid food degradation?",
+                                    "explanation": "A rider cannot deliver an order before picking it up (precedence), and total transit time must remain within strict freshness limits.",
+                                    "options": [
+                                        {"option_text": "Pickup-before-dropoff precedence constraint and maximum delivery latency thresholds", "is_correct": True},
+                                        {"option_text": "Alphabetical sorting of customer delivery addresses", "is_correct": False},
+                                        {"option_text": "Ensuring both restaurants belong to the same parent franchise", "is_correct": False},
+                                        {"option_text": "Minimizing rider smartphone battery consumption", "is_correct": False},
+                                    ],
+                                },
+                                {
+                                    "question_text": "What is the primary benefit of spatial clustering (e.g. DBSCAN) in Swiggy's order dispatch pipeline?",
+                                    "explanation": "Spatial clustering groups nearby restaurant pickups, enabling a single rider to batch orders heading in the same geographic trajectory.",
+                                    "options": [
+                                        {"option_text": "Grouping order preparation demands within dense commercial pockets to optimize rider trip utilization", "is_correct": True},
+                                        {"option_text": "Compressing menu image thumbnails", "is_correct": False},
+                                        {"option_text": "Generating automated SMS promotional codes", "is_correct": False},
+                                        {"option_text": "Calculating customer credit scores", "is_correct": False},
+                                    ],
+                                },
+                            ],
+                        },
+                    },
+                ],
+            },
+        ],
+    },
 ]
 
 
@@ -356,7 +741,7 @@ async def seed_courses():
                     category = Category(
                         name=cat_name,
                         slug=slug,
-                        description=f"Top courses in {cat_name}",
+                        description=f"Top corporate simulations and courses in {cat_name}",
                     )
                     db.add(category)
                     await db.flush()
@@ -405,19 +790,52 @@ async def seed_courses():
                     lesson = Lesson(
                         section_id=section.id,
                         title=l_data["title"],
-                        description=f"In-depth guide covering {l_data['title']}",
+                        description=f"In-depth simulation exercise covering {l_data['title']}",
                         order_index=l_idx + 1,
                         video_url=l_data["video_url"],
                         video_duration_seconds=l_data["duration"],
                         is_preview=l_data["is_preview"],
-                        content_text=f"Hands-on exercise and study notes for {l_data['title']}.",
+                        content_text=f"Hands-on architectural simulation notes and exercises for {l_data['title']}.",
                     )
                     db.add(lesson)
+                    await db.flush()
 
-            print(f"Seeded Course: {course.title}")
+                    # Add quizzes if specified
+                    if "quiz" in l_data and l_data["quiz"]:
+                        q_data = l_data["quiz"]
+                        quiz = Quiz(
+                            lesson_id=lesson.id,
+                            title=q_data["title"],
+                            description=q_data.get("description", "Evaluation Quiz"),
+                            passing_score_percent=q_data.get("passing_score_percent", 70.0),
+                            time_limit_minutes=q_data.get("time_limit_minutes", 15),
+                        )
+                        db.add(quiz)
+                        await db.flush()
+
+                        for q_idx, q_item in enumerate(q_data.get("questions", [])):
+                            qq = QuizQuestion(
+                                quiz_id=quiz.id,
+                                question_text=q_item["question_text"],
+                                order_index=q_idx + 1,
+                                explanation=q_item.get("explanation"),
+                                points=q_item.get("points", 1),
+                            )
+                            db.add(qq)
+                            await db.flush()
+
+                            for opt in q_item.get("options", []):
+                                qo = QuizOption(
+                                    question_id=qq.id,
+                                    option_text=opt["option_text"],
+                                    is_correct=opt["is_correct"],
+                                )
+                                db.add(qo)
+
+            print(f"Seeded Corporate Experience Simulator: {course.title}")
 
         await db.commit()
-        print("Successfully seeded 12 courses!")
+        print("Successfully seeded all courses and corporate simulators!")
 
 
 if __name__ == "__main__":
