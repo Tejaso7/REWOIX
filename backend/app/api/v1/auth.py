@@ -9,8 +9,17 @@ from app.core.security import (
     create_access_token,
     create_refresh_token,
 )
+from datetime import datetime, timezone
 from app.core.deps import get_current_active_user
+from app.core.email import (
+    generate_otp,
+    store_otp,
+    verify_otp,
+    send_otp_email,
+    send_login_notification_email,
+)
 from app.models.user import User, UserRole, UserRoleEnum, LearnerProfile, TeacherProfile
+from app.models.notification import Notification
 from app.schemas.auth import (
     UserRegister,
     UserLogin,
@@ -20,6 +29,10 @@ from app.schemas.auth import (
     LearnerOnboardingRequest,
     TeacherProfileResponse,
     LearnerProfileResponse,
+    SendOtpRequest,
+    VerifyOtpRequest,
+    OtpLoginRequest,
+    OtpResponse,
 )
 
 router = APIRouter(prefix="/auth", tags=["Authentication"])
@@ -118,6 +131,29 @@ async def login(credentials: UserLogin, db: AsyncSession = Depends(get_db)):
     access_token = create_access_token(subject=str(user.id), roles=roles)
     refresh_token = create_refresh_token(subject=str(user.id))
 
+    # Trigger security notification event
+    now_str = datetime.now(timezone.utc).strftime("%b %d, %Y at %H:%M UTC")
+    login_notification = Notification(
+        user_id=user.id,
+        title="New Security Login Detected",
+        message=f"Session successfully authenticated for {user.full_name} ({', '.join(roles)}) on {now_str}.",
+        event_type="SECURITY_LOGIN",
+        is_read=False,
+    )
+    db.add(login_notification)
+    await db.commit()
+
+    # Dispatch security alert email (non-blocking)
+    try:
+        await send_login_notification_email(
+            email_to=user.email,
+            full_name=user.full_name,
+            role=", ".join(roles) if roles else "Learner",
+            device="Standard Password Auth",
+        )
+    except Exception:
+        pass
+
     user_resp = await build_user_response(user, db)
 
     return Token(
@@ -125,6 +161,96 @@ async def login(credentials: UserLogin, db: AsyncSession = Depends(get_db)):
         refresh_token=refresh_token,
         user=user_resp,
     )
+
+
+@router.post("/send-otp", response_model=OtpResponse)
+async def send_otp(payload: SendOtpRequest):
+    code = generate_otp(6)
+    purpose = payload.purpose or "login"
+    store_otp(payload.email, code, purpose=purpose, ttl_minutes=10)
+    await send_otp_email(payload.email, code, purpose=purpose)
+    return OtpResponse(
+        success=True,
+        message="Verification OTP sent successfully",
+        debug_otp=code,
+    )
+
+
+@router.post("/verify-otp", response_model=OtpResponse)
+async def verify_user_otp(payload: VerifyOtpRequest):
+    purpose = payload.purpose or "login"
+    is_valid = verify_otp(payload.email, payload.otp, purpose=purpose)
+    if not is_valid:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Invalid or expired verification code",
+        )
+    return OtpResponse(
+        success=True,
+        message="Verification code confirmed successfully",
+    )
+
+
+@router.post("/login-otp", response_model=Token)
+async def login_with_otp(payload: OtpLoginRequest, db: AsyncSession = Depends(get_db)):
+    is_valid = verify_otp(payload.email, payload.otp, purpose="login")
+    if not is_valid:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Invalid or expired verification OTP",
+        )
+
+    stmt = select(User).where(User.email == payload.email)
+    result = await db.execute(stmt)
+    user = result.unique().scalar_one_or_none()
+
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="No account registered with this email address. Please sign up first.",
+        )
+
+    if not user.is_active:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Inactive user account",
+        )
+
+    roles = [r.role.value for r in user.roles]
+    access_token = create_access_token(subject=str(user.id), roles=roles)
+    refresh_token = create_refresh_token(subject=str(user.id))
+
+    # Trigger security notification event
+    now_str = datetime.now(timezone.utc).strftime("%b %d, %Y at %H:%M UTC")
+    login_notification = Notification(
+        user_id=user.id,
+        title="New Security Login Detected (OTP)",
+        message=f"Passwordless OTP session authenticated for {user.full_name} ({', '.join(roles)}) on {now_str}.",
+        event_type="SECURITY_LOGIN",
+        is_read=False,
+    )
+    db.add(login_notification)
+    await db.commit()
+
+    # Dispatch security alert email
+    try:
+        await send_login_notification_email(
+            email_to=user.email,
+            full_name=user.full_name,
+            role=", ".join(roles) if roles else "Learner",
+            device="Passwordless Email OTP",
+        )
+    except Exception:
+        pass
+
+    user_resp = await build_user_response(user, db)
+
+    return Token(
+        access_token=access_token,
+        refresh_token=refresh_token,
+        user=user_resp,
+    )
+
 
 
 @router.get("/me", response_model=UserResponse)

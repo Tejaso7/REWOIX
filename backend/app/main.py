@@ -16,6 +16,7 @@ from app.api.v1 import (
     videos,
     ai,
     waitlist,
+    notifications,
 )
 
 app = FastAPI(
@@ -61,6 +62,7 @@ app.include_router(certificates.router, prefix=settings.API_V1_STR)
 app.include_router(videos.router, prefix=settings.API_V1_STR)
 app.include_router(ai.router, prefix=settings.API_V1_STR)
 app.include_router(waitlist.router, prefix=settings.API_V1_STR)
+app.include_router(notifications.router, prefix=settings.API_V1_STR)
 
 
 # Health Check Endpoints

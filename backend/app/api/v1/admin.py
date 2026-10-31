@@ -279,6 +279,7 @@ async def admin_update_teacher_commission(
     }
 
 
+@router.get("/users", response_model=List[UserResponse])
 @router.get("/users/detailed", response_model=List[UserResponse])
 async def list_users_detailed(
     current_user: User = Depends(require_roles([UserRoleEnum.ADMIN])),
@@ -295,6 +296,35 @@ async def list_users_detailed(
         response_list.append(u_resp)
 
     return response_list
+
+
+@router.get("/revenue")
+async def get_admin_revenue_overview(
+    current_user: User = Depends(require_roles([UserRoleEnum.ADMIN])),
+    db: AsyncSession = Depends(get_db),
+):
+    """Admin financial overview: Aggregates GMV, net platform revenue, and payout liabilities."""
+    stmt_sales = select(
+        func.count(RevenueTransaction.id),
+        func.coalesce(func.sum(RevenueTransaction.gross_amount), Decimal("0.00")),
+        func.coalesce(func.sum(RevenueTransaction.platform_commission_amount), Decimal("0.00")),
+        func.coalesce(func.sum(RevenueTransaction.teacher_amount), Decimal("0.00")),
+    )
+    res = (await db.execute(stmt_sales)).one()
+    total_sales_count, total_gmv, platform_net_revenue, total_teacher_cut = res
+
+    stmt_payouts = select(
+        func.coalesce(func.sum(Payout.amount), Decimal("0.00"))
+    ).where(Payout.status == "PENDING")
+    pending_payouts_total = (await db.execute(stmt_payouts)).scalar() or Decimal("0.00")
+
+    return {
+        "total_sales_count": total_sales_count,
+        "total_gmv": float(total_gmv),
+        "platform_net_revenue": float(platform_net_revenue),
+        "total_teacher_cut": float(total_teacher_cut),
+        "pending_payouts_total": float(pending_payouts_total),
+    }
 
 
 @router.get("/payouts", response_model=List[PayoutResponse])

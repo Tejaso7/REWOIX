@@ -193,3 +193,26 @@ REWOIX enforces a strict **Role-Based Access Control (RBAC)** architecture:
   - Mathematical breakdown: Gross Order Amount = Platform Share (30%) + Instructor Share (70%).
   - Payout status tracker (PENDING, PROCESSED, FAILED).
 - **User Story:** *"As the CFO/Admin, I want a mathematically auditable ledger ensuring that all platform commissions and teacher liabilities balance to the penny."*
+
+---
+
+## 5. Security, Authentication & Real-Time Notifications
+
+### 5.1 Dual-Mode Authentication & Passwordless 2FA OTP
+- **Password Authentication:** Standard PBKDF2/bcrypt-secured credentials with JWT token issuance (`access_token` 24h, `refresh_token` 7d).
+- **Passwordless Email OTP (2FA):** 
+  - User enters email and requests a verification code (`POST /api/v1/auth/send-otp`).
+  - System generates a 6-digit cryptographically secure OTP with a 10-minute TTL.
+  - REWOIX-branded HTML email is dispatched to the user.
+  - User signs in via `POST /api/v1/auth/login-otp`, receiving active session tokens with zero password friction.
+
+### 5.2 Automated Security Notification Pipeline
+- Every login event across any role (Learner, Teacher, Admin) automatically triggers:
+  1. An in-app `Notification` database entry (`SECURITY_LOGIN`) capturing timestamp and credentials mode.
+  2. A real-time security alert email warning the user of new device/session access with defensive recommendations.
+
+### 5.3 Interactive Notification Center (Navbar Bell)
+- **Live Unread Counter:** Pulsing badge indicating unread alerts.
+- **Dropdown Alert Panel:** Displays event type icons (Shield for security, Cap for courses, Lightning for platform events), title, details, and relative timestamp.
+- **Action Handlers:** Individual "Mark as Read" via `PATCH /api/v1/notifications/{id}/read` and bulk "Mark All as Read" via `POST /api/v1/notifications/read-all`.
+

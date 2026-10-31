@@ -87,3 +87,26 @@ class Token(BaseModel):
 
 class RefreshTokenRequest(BaseModel):
     refresh_token: str
+
+
+class SendOtpRequest(BaseModel):
+    email: EmailStr
+    purpose: Optional[str] = "login"
+
+
+class VerifyOtpRequest(BaseModel):
+    email: EmailStr
+    otp: str = Field(..., min_length=4, max_length=8)
+    purpose: Optional[str] = "login"
+
+
+class OtpLoginRequest(BaseModel):
+    email: EmailStr
+    otp: str = Field(..., min_length=4, max_length=8)
+
+
+class OtpResponse(BaseModel):
+    success: bool
+    message: str
+    debug_otp: Optional[str] = None
+
