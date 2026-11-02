@@ -18,9 +18,10 @@ const nextConfig = {
     if (backendUrl && !backendUrl.startsWith('http://') && !backendUrl.startsWith('https://')) {
       if (backendUrl.includes('.onrender.com') || backendUrl.includes('.railway.app') || backendUrl.includes('.app')) {
         backendUrl = `https://${backendUrl}`;
+      } else if (backendUrl === 'rewoix-backend' || backendUrl.startsWith('rewoix-backend')) {
+        backendUrl = `https://${backendUrl}.onrender.com`;
       } else {
-        // Internal container/service name within Docker or Render private network
-        backendUrl = `http://${backendUrl}:10000`;
+        backendUrl = `https://${backendUrl}`;
       }
     }
 
