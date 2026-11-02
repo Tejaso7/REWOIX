@@ -16,8 +16,16 @@ if [ -n "$DATABASE_URL" ] && echo "$DATABASE_URL" | grep -q "postgres"; then
 import asyncio, os, sys
 from sqlalchemy.ext.asyncio import create_async_engine
 
+def get_url():
+    u = os.environ.get('DATABASE_URL', '')
+    if u.startswith('postgres://'):
+        return u.replace('postgres://', 'postgresql+asyncpg://', 1)
+    elif u.startswith('postgresql://') and not u.startswith('postgresql+asyncpg://'):
+        return u.replace('postgresql://', 'postgresql+asyncpg://', 1)
+    return u
+
 async def check():
-    url = os.environ.get('DATABASE_URL')
+    url = get_url()
     try:
         engine = create_async_engine(url)
         async with engine.connect() as conn:

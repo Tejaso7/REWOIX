@@ -1,5 +1,6 @@
 import os
 from typing import List, Optional
+from pydantic import field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -19,6 +20,30 @@ class Settings(BaseSettings):
     # Database (Defaults to SQLite for instant local dev without requiring Docker PostgreSQL)
     DATABASE_URL: str = "sqlite+aiosqlite:///./rewoix.db"
     SYNC_DATABASE_URL: str = "sqlite:///./rewoix.db"
+
+    @field_validator("DATABASE_URL", mode="before")
+    @classmethod
+    def assemble_async_db_url(cls, v: str) -> str:
+        if isinstance(v, str):
+            if v.startswith("postgres://"):
+                return v.replace("postgres://", "postgresql+asyncpg://", 1)
+            elif v.startswith("postgresql://") and not v.startswith("postgresql+asyncpg://"):
+                return v.replace("postgresql://", "postgresql+asyncpg://", 1)
+            elif v.startswith("sqlite://") and not v.startswith("sqlite+aiosqlite://"):
+                return v.replace("sqlite://", "sqlite+aiosqlite://", 1)
+        return v
+
+    @field_validator("SYNC_DATABASE_URL", mode="before")
+    @classmethod
+    def assemble_sync_db_url(cls, v: str) -> str:
+        if isinstance(v, str):
+            if v.startswith("postgresql+asyncpg://"):
+                return v.replace("postgresql+asyncpg://", "postgresql://", 1)
+            elif v.startswith("postgres://"):
+                return v.replace("postgres://", "postgresql://", 1)
+            elif v.startswith("sqlite+aiosqlite://"):
+                return v.replace("sqlite+aiosqlite://", "sqlite://", 1)
+        return v
 
     # Redis
     REDIS_URL: str = "redis://localhost:6379/0"
