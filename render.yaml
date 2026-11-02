@@ -1,6 +1,6 @@
 # ==============================================================================
 # REWOIX: The Corporate Experience Simulator
-# Render Infrastructure Blueprint (render.yaml)
+# Render Infrastructure Blueprint (render.yaml) - 100% Free Tier Compatible
 # Docs: https://render.com/docs/blueprint-spec
 # ==============================================================================
 
@@ -10,28 +10,19 @@ databases:
   - name: rewoix-db
     databaseName: rewoix
     user: rewoix_admin
-    plan: starter
+    plan: free
     ipAllowList: [] # Allows internal services within Render network
 
 services:
   # ----------------------------------------------------------------------------
-  # 1. Managed Redis Cache & Broker
-  # ----------------------------------------------------------------------------
-  - type: redis
-    name: rewoix-redis
-    plan: starter
-    maxmemoryPolicy: allkeys-lru
-    ipAllowList: []
-
-  # ----------------------------------------------------------------------------
-  # 2. FastAPI Backend Engine
+  # 1. FastAPI Backend Engine (Free Plan)
   # ----------------------------------------------------------------------------
   - type: web
     name: rewoix-backend
     runtime: docker
     dockerfilePath: Dockerfile.backend
     dockerContext: .
-    plan: starter
+    plan: free
     healthCheckPath: /health
     autoDeploy: true
     envVars:
@@ -44,11 +35,6 @@ services:
       - key: DATABASE_URL
         fromDatabase:
           name: rewoix-db
-          property: connectionString
-      - key: REDIS_URL
-        fromService:
-          type: redis
-          name: rewoix-redis
           property: connectionString
       - key: SECRET_KEY
         generateValue: true
@@ -64,14 +50,14 @@ services:
         value: "INR"
 
   # ----------------------------------------------------------------------------
-  # 3. Next.js 14 Interactive Web Frontend
+  # 2. Next.js 14 Interactive Web Frontend (Free Plan)
   # ----------------------------------------------------------------------------
   - type: web
     name: rewoix-frontend
     runtime: docker
     dockerfilePath: Dockerfile.frontend
     dockerContext: .
-    plan: starter
+    plan: free
     healthCheckPath: /
     autoDeploy: true
     envVars:
