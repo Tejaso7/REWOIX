@@ -10,14 +10,22 @@ engine_kwargs = {
     "pool_pre_ping": True,
 }
 
-if not settings.DATABASE_URL.startswith("sqlite"):
+db_url = settings.DATABASE_URL
+if db_url.startswith("postgres://"):
+    db_url = db_url.replace("postgres://", "postgresql+asyncpg://", 1)
+elif db_url.startswith("postgresql://") and not db_url.startswith("postgresql+asyncpg://"):
+    db_url = db_url.replace("postgresql://", "postgresql+asyncpg://", 1)
+elif db_url.startswith("sqlite://") and not db_url.startswith("sqlite+aiosqlite://"):
+    db_url = db_url.replace("sqlite://", "sqlite+aiosqlite://", 1)
+
+if not db_url.startswith("sqlite"):
     engine_kwargs.update({
         "pool_size": 20,
         "max_overflow": 40,
         "pool_recycle": 3600,
     })
 
-engine = create_async_engine(settings.DATABASE_URL, **engine_kwargs)
+engine = create_async_engine(db_url, **engine_kwargs)
 
 # Create Session Maker
 AsyncSessionLocal = async_sessionmaker(

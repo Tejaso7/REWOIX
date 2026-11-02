@@ -51,5 +51,5 @@ echo "Checking seed data (Users, Roles & Default Workplace Simulations)..."
 python seed.py || echo "seed.py completed or skipped."
 python scripts/seed_courses.py || echo "scripts/seed_courses.py completed or skipped."
 
-echo "Starting Uvicorn ASGI server on port 8000..."
+echo "Starting ASGI application server (Port: ${PORT:-8000})..."
 exec "$@"
